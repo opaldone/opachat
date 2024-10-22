@@ -1,0 +1,85 @@
+#!/bin/bash
+
+declare room_in=$1
+declare ke_in=$2
+declare js_file=$3
+declare u=$4
+declare loo=$5
+declare sc=$6
+declare loglev=$7
+
+function cr_json() {
+    local pxv=$1
+    local pff=$2
+    local pgoo=$3
+    local js_file=$4
+
+    echo "{\"pxv\":${pxv},\"pff\":${pff},\"pgoo\":${pgoo}}">$js_file
+}
+
+declare scr_xv="${sc}x24"
+declare cu="$u/${room_in}/${ke_in}"
+declare nfile="vi_${room_in}_${ke_in}.webm"
+declare vi_file="./vid/${nfile}"
+
+declare ef="./sv_logs/ef_${room_in}.err"
+declare eg="./sv_logs/eg_${room_in}.err"
+
+cr_json 111 222 333 "./prcs/pr_111.json"
+exit 0
+
+declare SERVERNUM=99
+find_free_servernum() {
+    local i=$SERVERNUM
+    while [ -f /tmp/.X$i-lock ]; do
+        i=$(($i + 1))
+    done
+    echo $i
+}
+SERVERNUM=$(find_free_servernum)
+
+declare LISTENTCP="-nolisten tcp"
+declare XVFBARGS="-screen 0 $scr_xv"
+
+Xvfb \
+    :$SERVERNUM \
+    $XVFBARGS \
+    $LISTENTCP >/dev/null 2>&1 &
+
+declare pxv=$!
+
+sleep 3
+
+DISPLAY=:$SERVERNUM \
+	google-chrome \
+    --incognito \
+    --start-maximized \
+    -no-default-browser-check \
+	--disable-gpu \
+	--disable-software-rasterizer \
+	--autoplay-policy=no-user-gesture-required \
+	--kiosk $cu >/dev/null 2>$eg &
+
+declare pgoo=$!
+
+sleep 5
+
+ffmpeg \
+    -y \
+    -v $loglev \
+    -f x11grab \
+    -draw_mouse 0 \
+    -s $sc \
+    -i :$SERVERNUM \
+    -f alsa \
+    -thread_queue_size 4096 \
+    -i $loo \
+    -c:a libopus \
+    -c:v libvpx \
+    -f webm $vi_file >/dev/null 2>$ef &
+
+declare pff=$!
+
+cr_json $pxv $pff $pgoo $js_file
+
+exit 0

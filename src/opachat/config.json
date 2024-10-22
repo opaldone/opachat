@@ -1,0 +1,27 @@
+{
+  "appname": "opachat",
+  "debug": true,
+  "address": "0.0.0.0",
+  "acmehost": "admigo.uk.to",
+  "dirCache": "./certs",
+  "port": 7778,
+  "crt": "/mnt/terik/a_my/admigo_project/admigo/bin/certs_local/server.crt",
+  "key": "/mnt/terik/a_my/admigo_project/admigo/bin/certs_local/server.key",
+  "readTimeout": 10,
+  "writeTimeout": 120,
+  "idleTimeout": 120,
+  "static": "static",
+  "iceList": [
+    {
+      "urls": "turn:192.168.0.104:3478",
+      "username": "shpav",
+      "credential": "qw"
+    }
+  ],
+  "saver": {
+   "u_virt": "https://admigo.so/virt",
+   "loop": "hw:1",
+   "screen": "2560x1080",
+   "loglevel": "error"
+  }
+}

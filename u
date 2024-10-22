@@ -1,0 +1,129 @@
+#!/bin/bash
+
+SETCOLOR_SUCCESS="echo -en \\033[0;32m"
+SETCOLOR_NORMAL="echo -en \\033[0;39m"
+
+declare TTL="CHAT"
+
+declare pw=$("pwd")
+declare project=""
+if [[ $pw =~ (.*\/)(.*) ]]; then
+    project=${BASH_REMATCH[2]}
+fi
+
+declare src="$pw/src/$project"
+declare bin="$pw/bin"
+
+function check_dirs() {
+    local -n ari=$1
+
+    # creates folders if not exists
+    for page in "${ari[@]}"
+    do
+        IFS=";" read -r -a arr <<< "${page}"
+
+        declare fde="${arr[1]}"
+        declare dirna="$(dirname "${fde}")"
+
+        if [ ! -e $dirna ]; then
+            echo "creating $dirna"
+            mkdir -p $dirna
+        fi
+    done
+}
+
+function copy_folder() {
+    local -n ari=$1
+
+    for page in "${ari[@]}"
+    do
+        IFS=";" read -r -a arr <<< "${page}"
+
+        declare fsr="${arr[0]}"
+        declare fde="${arr[1]}"
+
+        if [ -e $fde ]; then
+            continue
+        fi
+
+        declare out=$(cp -r -v "$fsr" "$fde")
+        if [[ ! -z $out ]]; then
+            echo "copy dir $fsr"
+        fi
+    done
+}
+
+function copira() {
+    local -n acp=$1
+
+    declare some=""
+
+    for page in "${acp[@]}"
+    do
+        IFS=";" read -r -a arr <<< "${page}"
+
+        declare fos="${arr[0]}"
+        declare fot="${arr[1]}"
+
+        declare out=$(cp -u -v "$fos" "$fot")
+
+        if [[ ! -z $out ]]; then
+            declare bn=$(basename "$fos")
+
+            if [[ ! -z $some ]]; then
+                some="${some}"$'\n'
+            fi
+
+            some="${some}${bn}"
+        fi
+    done
+
+    if [[ ! -z $some ]]; then
+        printf "%-20s%s\n" "$some"
+    fi
+}
+
+EE=(
+    "vid;$bin/vid/*"
+    "prcs;$bin/prcs/*"
+    "sv_logs;$bin/sv_logs/*"
+)
+
+FF=(
+    "$src/static/js/libs;$bin/static/js/libs/"
+    "$src/static/images;$bin/static/images/"
+)
+
+PP=(
+# config
+    "$src/config.json;$bin/config.json"
+# bash scripts
+    "$src/scr/s_s;$bin/scr/s_s"
+    "$src/scr/k_s;$bin/scr/k_s"
+# commmon
+    "$src/templates/site/layout_emp.html;$bin/templates/site/layout_emp.html"
+    "$src/static/css/reset.css;$bin/static/css/reset.css"
+# deb_page
+    "$src/templates/site/deb/ix.html;$bin/templates/site/deb/ix.html"
+    "$src/static/css/deb/ix.css;$bin/static/css/deb/ix.css"
+    "$src/static/js/deb/deb_ix.js;$bin/static/js/deb/deb_ix.js"
+)
+
+echo -en "\033]0;$TTL\a"
+
+clear
+
+check_dirs EE
+check_dirs FF
+check_dirs PP
+
+copy_folder FF
+
+while true;
+do
+    copira PP
+    sleep 1
+done
+
+exit 0
+

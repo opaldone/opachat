@@ -1,0 +1,36 @@
+body {
+  background-color: #272727;
+}
+
+#deb-info-cont {
+  position: relative;
+  width: 97%;
+  margin: 30px auto 0;
+  background-color: #2f2f2f;
+  color: #d7d7d7;
+  border-radius: 13px;
+  padding: 20px;
+}
+
+#tbl-cont {
+  width: 100%;
+  padding: 20px 0 0 0;
+}
+
+#info-ref {
+  display: inline-block;
+  width: auto;
+  padding: 13px 70px;
+  border: 1px solid #454545;
+  background-color: #373737;
+  cursor: pointer;
+  border-radius: 13px;
+}
+
+#info-ref:hover {
+  background-color: #3d3d3d;
+}
+
+#info-ref:active {
+  background-color: #202020;
+}
