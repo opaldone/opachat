@@ -475,7 +475,7 @@ func (r *Room) removeRecord() {
 
 func (r *Room) getInfo() (ret string) {
 	r.lockRoom.RLock()
-	defer r.lockRoom.RLock()
+	defer r.lockRoom.RUnlock()
 
 	ret = fmt.Sprintf("room_id=%s "+
 		"talkers_len=%d "+

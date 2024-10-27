@@ -20,7 +20,6 @@ type Configuration struct {
 	IdleTimeout  int64               `json:"idleTimeout"`
 	IceList      []map[string]string `json:"iceList"`
 	Saver        *ConfSaver          `json:"saver"`
-	Static       string              `json:"static"`
 }
 
 type ConfSaver struct {
