@@ -32,27 +32,6 @@ function check_dirs() {
     done
 }
 
-function copy_folder() {
-    local -n ari=$1
-
-    for page in "${ari[@]}"
-    do
-        IFS=";" read -r -a arr <<< "${page}"
-
-        declare fsr="${arr[0]}"
-        declare fde="${arr[1]}"
-
-        if [ -e $fde ]; then
-            continue
-        fi
-
-        declare out=$(cp -r -v "$fsr" "$fde")
-        if [[ ! -z $out ]]; then
-            echo "copy dir $fsr"
-        fi
-    done
-}
-
 function copira() {
     local -n acp=$1
 
@@ -89,24 +68,12 @@ EE=(
     "sv_logs;$bin/sv_logs/*"
 )
 
-FF=(
-    "$src/static/js/libs;$bin/static/js/libs/"
-    "$src/static/images;$bin/static/images/"
-)
-
 PP=(
 # config
     "$src/config.json;$bin/config.json"
 # bash scripts
     "$src/scr/s_s;$bin/scr/s_s"
     "$src/scr/k_s;$bin/scr/k_s"
-# commmon
-    "$src/templates/site/layout_emp.html;$bin/templates/site/layout_emp.html"
-    "$src/static/css/reset.css;$bin/static/css/reset.css"
-# deb_page
-    "$src/templates/site/deb/ix.html;$bin/templates/site/deb/ix.html"
-    "$src/static/css/deb/ix.css;$bin/static/css/deb/ix.css"
-    "$src/static/js/deb/deb_ix.js;$bin/static/js/deb/deb_ix.js"
 )
 
 echo -en "\033]0;$TTL\a"
@@ -114,10 +81,7 @@ echo -en "\033]0;$TTL\a"
 clear
 
 check_dirs EE
-check_dirs FF
 check_dirs PP
-
-copy_folder FF
 
 while true;
 do

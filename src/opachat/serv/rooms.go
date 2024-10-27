@@ -175,6 +175,7 @@ func GetShowRooms() tools.RoomsDebugType {
 		room_item := tools.RoomsDebugType{}
 		room_item.Cap = r.getInfo()
 		room_item.List = []tools.RoomsDebugType{}
+
 		some_item := tools.RoomsDebugType{}
 		some_item.Cap = "Osa"
 		osa := r.getOsa()
@@ -183,6 +184,7 @@ func GetShowRooms() tools.RoomsDebugType {
 		} else {
 			some_item.List = []tools.RoomsDebugType{{Cap: tools.DebugJ(osa, false, "", "")}}
 		}
+
 		room_item.List = append(room_item.List, some_item)
 
 		some_item = tools.RoomsDebugType{}

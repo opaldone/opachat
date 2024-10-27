@@ -2,12 +2,12 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"opachat/serv"
 	"opachat/tools"
 	"strconv"
 
-	"github.com/gorilla/csrf"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -35,22 +35,18 @@ func Ws(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	serv.ServeWs(roomuq, useruq, perroom, nik, ke, hub, w, r)
 }
 
-func Deb(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func Di(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	w.Header().Set("Content-Type", "application/json")
+
 	uq := ps.ByName("uq")
 
 	if uq != tools.GetKeyCSRF() {
+		fmt.Printf("\ncsrf\t\t%s\n",
+			tools.GetKeyCSRF(),
+		)
+
 		return
 	}
-
-	data := map[string]interface{}{
-		csrf.TemplateTag: csrf.TemplateField(r),
-	}
-
-	GenerateHTMLEmp(w, data, []string{"deb/ix"})
-}
-
-func Di(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	w.Header().Set("Content-Type", "application/json")
 
 	some := serv.GetShowRooms()
 

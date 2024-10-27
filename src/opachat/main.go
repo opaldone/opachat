@@ -8,27 +8,21 @@ import (
 	"opachat/tools"
 	"time"
 
-	"github.com/gorilla/csrf"
 	"golang.org/x/crypto/acme/autocert"
 )
 
 func main() {
 	e := tools.Env()
 
-	csrf_handler := csrf.Protect(
-		[]byte(tools.GetKeyCSRF()),
-		csrf.Path("/"),
-	)
-
 	if e.Debug {
-		startDevTLS(e, csrf_handler)
+		startDevTLS(e)
 		return
 	}
 
-	startTLS(e, csrf_handler)
+	startTLS(e)
 }
 
-func startDevTLS(e *tools.Configuration, cs_handler func(http.Handler) http.Handler) {
+func startDevTLS(e *tools.Configuration) {
 	fmt.Printf("\n[%s] %s started\ncrt\t\t%s\nkey\t\t%s\naddress\t\t%s:%d\ncsrf\t\t%s\n",
 		"debug", e.Appname,
 		e.Crt, e.Key,
@@ -40,7 +34,7 @@ func startDevTLS(e *tools.Configuration, cs_handler func(http.Handler) http.Hand
 
 	server := &http.Server{
 		Addr:           fmt.Sprintf("%s:%d", e.Address, e.Port),
-		Handler:        cs_handler(mux),
+		Handler:        mux,
 		ReadTimeout:    time.Duration(e.ReadTimeout * int64(time.Second)),
 		WriteTimeout:   time.Duration(e.WriteTimeout * int64(time.Second)),
 		MaxHeaderBytes: 1 << 20,
@@ -49,7 +43,7 @@ func startDevTLS(e *tools.Configuration, cs_handler func(http.Handler) http.Hand
 	log.Fatalln(server.ListenAndServeTLS(e.Crt, e.Key))
 }
 
-func startTLS(e *tools.Configuration, cs_handler func(http.Handler) http.Handler) {
+func startTLS(e *tools.Configuration) {
 	fmt.Printf("\n[%s] %s started\nacmehost\t%s\ndirCache\t%s\naddress\t\t%s:%d\ncsrf\t\t%s\n",
 		"prod", e.Appname,
 		e.Acmehost, e.DirCache, e.Address, e.Port,
@@ -66,7 +60,7 @@ func startTLS(e *tools.Configuration, cs_handler func(http.Handler) http.Handler
 
 	server := &http.Server{
 		Addr:           fmt.Sprintf(":%d", e.Port),
-		Handler:        cs_handler(mux),
+		Handler:        mux,
 		ReadTimeout:    time.Duration(e.ReadTimeout * int64(time.Second)),
 		WriteTimeout:   time.Duration(e.WriteTimeout * int64(time.Second)),
 		IdleTimeout:    time.Duration(e.IdleTimeout * int64(time.Second)),

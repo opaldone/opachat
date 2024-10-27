@@ -10,7 +10,6 @@
   "readTimeout": 10,
   "writeTimeout": 120,
   "idleTimeout": 120,
-  "static": "static",
   "iceList": [
     {
       "urls": "turn:192.168.0.104:3478",
