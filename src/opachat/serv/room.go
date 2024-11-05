@@ -6,6 +6,7 @@ import (
 	"opachat/tools"
 	"os"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/pion/webrtc/v3"
@@ -381,6 +382,69 @@ func (r *Room) checkKe(ke_in string) bool {
 	return true
 }
 
+func (r *Room) getWriter() *Client {
+	r.lockRoom.RLock()
+	defer r.lockRoom.RUnlock()
+
+	for _, talker := range r.talkers {
+		if talker.wsc.recording {
+			return talker.wsc
+		}
+	}
+
+	return nil
+}
+
+func (r *Room) monitorRecording() {
+	ticker := time.NewTicker(3 * time.Second)
+	defer ticker.Stop()
+
+	_running := func(pid int) bool {
+		proc, _ := os.FindProcess(pid)
+
+		err := proc.Signal(syscall.Signal(0))
+
+		if err != nil {
+			return false
+		}
+		return true
+	}
+
+	osa_in := r.getOsa()
+	pids := []int{}
+
+	for {
+		select {
+		case <-ticker.C:
+			if osa_in != nil && len(pids) == 0 {
+				pids = append(pids, osa_in.Pxv)
+				pids = append(pids, osa_in.Pff)
+				pids = append(pids, osa_in.Pgoo)
+			}
+
+			if osa_in == nil {
+				osa_in = r.getOsa()
+			}
+
+			if len(pids) == 0 {
+				continue
+			}
+
+			for _, pid := range pids {
+				if _running(pid) {
+					continue
+				}
+
+				wr_cl := r.getWriter()
+				if wr_cl != nil {
+					r.stopRecord(wr_cl)
+					return
+				}
+			}
+		}
+	}
+}
+
 func (r *Room) startRecord(c *Client) {
 	r.lockRoom.RLock()
 	empty_ke := len(r.keSaver) == 0
@@ -388,6 +452,9 @@ func (r *Room) startRecord(c *Client) {
 
 	if empty_ke {
 		startRec(r)
+
+		go r.monitorRecording()
+
 		r.notifTalkersStartedRecord(c)
 		return
 	}
