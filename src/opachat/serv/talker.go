@@ -227,8 +227,8 @@ func (t *Talker) getInfo() (ret string) {
 		"nik=%s "+
 			"uquser=%s "+
 			"strID=%s "+
-			"rec=%t "+
-			"scr=%t "+
+			"recording=%t "+
+			"screen=%t "+
 			"sound=%t "+
 			"video=%t "+
 			"ke=%s",
