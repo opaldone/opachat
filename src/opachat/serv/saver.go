@@ -14,10 +14,11 @@ func startRec(r *Room) {
 		rid,
 		rke,
 		js_file,
-		e.Saver.UVirt,
-		e.Saver.Loop,
-		e.Saver.Screen,
-		e.Saver.Loglevel,
+		e.Saver.UrlVirt,
+		e.Saver.IHw,
+		e.Saver.ScrRes,
+		e.Saver.LogLevel,
+		strconv.Itoa(e.Saver.Timeout),
 	)
 
 	err := cmd.Start()

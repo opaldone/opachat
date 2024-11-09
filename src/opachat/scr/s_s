@@ -3,10 +3,11 @@
 declare room_in=$1
 declare ke_in=$2
 declare js_file=$3
-declare u=$4
-declare loo=$5
-declare sc=$6
+declare url_virt=$4
+declare i_hw=$5
+declare scr_res=$6
 declare loglev=$7
+declare ff_timeout=$8
 
 function cr_json() {
     local pxv=$1
@@ -17,13 +18,12 @@ function cr_json() {
     echo "{\"pxv\":${pxv},\"pff\":${pff},\"pgoo\":${pgoo}}">$js_file
 }
 
-declare scr_xv="${sc}x24"
-declare cu="$u/${room_in}/${ke_in}"
-declare nfile="vi_${room_in}_${ke_in}.webm"
-declare vi_file="./vid/${nfile}"
+declare scr_xv="${scr_res}x24"
+declare kiosk_url="$url_virt/${room_in}/${ke_in}"
+declare file_name="vi_${room_in}_${ke_in}.webm"
+declare video_file="./vid/${file_name}"
 
 declare ef="./sv_logs/ef_${room_in}.err"
-declare eg="./sv_logs/eg_${room_in}.err"
 
 # cr_json 111 222 333 "./prcs/pr_111.json"
 # exit 0
@@ -58,7 +58,7 @@ DISPLAY=:$SERVERNUM \
 	--disable-gpu \
 	--disable-software-rasterizer \
 	--autoplay-policy=no-user-gesture-required \
-	--kiosk $cu >/dev/null 2>$eg &
+	--kiosk $kiosk_url >/dev/null 2>&1 &
 
 declare pgoo=$!
 
@@ -69,15 +69,15 @@ ffmpeg \
     -v $loglev \
     -f x11grab \
     -draw_mouse 0 \
-    -s $sc \
+    -s $scr_res \
     -i :$SERVERNUM \
     -f alsa \
     -thread_queue_size 4096 \
-    -i $loo \
+    -i $i_hw \
     -c:a libopus \
     -c:v libvpx \
-    -t 30 \
-    -f webm $vi_file >/dev/null 2>$ef &
+    -t $ff_timeout \
+    -f webm $video_file >/dev/null 2>$ef &
 
 declare pff=$!
 

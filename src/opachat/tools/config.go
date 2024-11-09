@@ -7,26 +7,24 @@ import (
 
 // Configuration config of the application
 type Configuration struct {
-	Appname      string              `json:"appname"`
-	Address      string              `json:"address"`
-	Debug        bool                `json:"debug"`
-	Acmehost     string              `json:"acmehost"`
-	DirCache     string              `json:"dirCache"`
-	Port         int                 `json:"port"`
-	Crt          string              `json:"crt,omitempty"`
-	Key          string              `json:"key,omitempty"`
-	ReadTimeout  int64               `json:"readTimeout"`
-	WriteTimeout int64               `json:"writeTimeout"`
-	IdleTimeout  int64               `json:"idleTimeout"`
-	IceList      []map[string]string `json:"iceList"`
-	Saver        *ConfSaver          `json:"saver"`
+	Appname  string              `json:"appname"`
+	Debug    bool                `json:"debug"`
+	Address  string              `json:"address"`
+	Port     int                 `json:"port"`
+	Acmehost string              `json:"acmehost"`
+	DirCache string              `json:"dirCache"`
+	Crt      string              `json:"crt,omitempty"`
+	Key      string              `json:"key,omitempty"`
+	IceList  []map[string]string `json:"iceList"`
+	Saver    *ConfSaver          `json:"saver"`
 }
 
 type ConfSaver struct {
-	UVirt    string `json:"u_virt"`
-	Loop     string `json:"loop"`
-	Screen   string `json:"screen"`
-	Loglevel string `json:"loglevel"`
+	UrlVirt  string `json:"urlVirt"`
+	IHw      string `json:"iHw"`
+	ScrRes   string `json:"scrRes"`
+	LogLevel string `json:"logLevel"`
+	Timeout  int    `json:"timeout"`
 }
 
 var conf *Configuration
