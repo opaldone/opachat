@@ -9,8 +9,9 @@ import (
 
 	"github.com/pion/interceptor"
 	"github.com/pion/interceptor/pkg/intervalpli"
+	"github.com/pion/rtp"
 
-	"github.com/pion/webrtc/v3"
+	"github.com/pion/webrtc/v4"
 )
 
 type Talker struct {
@@ -39,17 +40,12 @@ func NewTalker(c_in *Client, room_in *Room, av *AVConfig) *Talker {
 }
 
 func (t *Talker) getPeerConnectionConfig() (peerConnectionConfig webrtc.Configuration) {
-	// turn server is here
-	// /mnt/terik/a_my/test/gol/turns/tser
-
 	urls_out, username_out, credential_out := tools.GetIceList()
 
 	peerConnectionConfig = webrtc.Configuration{
 		ICEServers: []webrtc.ICEServer{
 			{
 				// URLs: []string{"stun:stun.l.google.com:19302"},
-
-				// URLs: []string{"stun:192.168.0.104:3478"},
 
 				URLs:       urls_out,
 				Username:   username_out,
@@ -73,6 +69,8 @@ func (t *Talker) myOnTrack(jsTrack *webrtc.TrackRemote, _ *webrtc.RTPReceiver) {
 	defer t.room.removeTrack(trackLocal)
 
 	buf := make([]byte, 1500)
+	rtpPkt := &rtp.Packet{}
+
 	for {
 		i, _, err := jsTrack.Read(buf)
 
@@ -93,7 +91,14 @@ func (t *Talker) myOnTrack(jsTrack *webrtc.TrackRemote, _ *webrtc.RTPReceiver) {
 			continue
 		}
 
-		if _, err = trackLocal.Write(buf[:i]); err != nil {
+		if err = rtpPkt.Unmarshal(buf[:i]); err != nil {
+			return
+		}
+
+		rtpPkt.Extension = false
+		rtpPkt.Extensions = nil
+
+		if err = trackLocal.WriteRTP(rtpPkt); err != nil {
 			return
 		}
 	}

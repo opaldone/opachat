@@ -11,6 +11,12 @@ import (
 	"golang.org/x/crypto/acme/autocert"
 )
 
+var ct = map[string]int64{
+	"ReadTimeout":  10,
+	"WriteTimeout": 120,
+	"IdleTimeout":  120,
+}
+
 func main() {
 	e := tools.Env()
 
@@ -35,8 +41,8 @@ func startDevTLS(e *tools.Configuration) {
 	server := &http.Server{
 		Addr:           fmt.Sprintf("%s:%d", e.Address, e.Port),
 		Handler:        mux,
-		ReadTimeout:    time.Duration(e.ReadTimeout * int64(time.Second)),
-		WriteTimeout:   time.Duration(e.WriteTimeout * int64(time.Second)),
+		ReadTimeout:    time.Duration(ct["ReadTimeout"] * int64(time.Second)),
+		WriteTimeout:   time.Duration(ct["WriteTimeout"] * int64(time.Second)),
 		MaxHeaderBytes: 1 << 20,
 	}
 
@@ -61,9 +67,9 @@ func startTLS(e *tools.Configuration) {
 	server := &http.Server{
 		Addr:           fmt.Sprintf(":%d", e.Port),
 		Handler:        mux,
-		ReadTimeout:    time.Duration(e.ReadTimeout * int64(time.Second)),
-		WriteTimeout:   time.Duration(e.WriteTimeout * int64(time.Second)),
-		IdleTimeout:    time.Duration(e.IdleTimeout * int64(time.Second)),
+		ReadTimeout:    time.Duration(ct["ReadTimeout"] * int64(time.Second)),
+		WriteTimeout:   time.Duration(ct["WriteTimeout"] * int64(time.Second)),
+		IdleTimeout:    time.Duration(ct["IdleTimeout"] * int64(time.Second)),
 		TLSConfig:      certManager.TLSConfig(),
 		MaxHeaderBytes: 1 << 20,
 	}
