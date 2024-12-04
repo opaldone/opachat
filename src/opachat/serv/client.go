@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
-	"opachat/tools"
 	"sync"
 	"time"
+
+	"opachat/tools"
 
 	"github.com/gorilla/websocket"
 )
@@ -164,16 +165,20 @@ func (c *Client) processMessage(msg *Message) {
 
 		if c.talker != nil && sv.ScreenOn {
 			sv.Video = true
-			c.talker.changeOpts(sv)
+
 			c.lockClient.Lock()
 			c.screen = true
 			c.lockClient.Unlock()
+
+			c.talker.changeOpts(sv)
 		}
 
 		if !sv.ScreenOn && c.screen {
 			c.lockClient.Lock()
 			c.screen = false
 			c.lockClient.Unlock()
+
+			c.talker.changeOpts(sv)
 		}
 
 		talkerChangedScreen(c, sv)

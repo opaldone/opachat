@@ -7,15 +7,15 @@ import (
 	"net/http"
 )
 
-type RoomsDebugType struct {
-	Cap  string           `json:"cap"`
-	List []RoomsDebugType `json:"list,omitempty"`
+type RoomDebugType struct {
+	Room    string   `json:"room,omitempty"`
+	Osa     string   `json:"osa,omitempty"`
+	Talkers []string `json:"talkers,omitempty"`
 }
 
 // DebugJ pretty print structures
 func DebugJ(v interface{}, echo bool, px, inde string) string {
 	b, err := json.MarshalIndent(v, px, inde)
-
 	if err != nil {
 		fmt.Println(err)
 		return ""
