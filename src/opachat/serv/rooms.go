@@ -1,8 +1,9 @@
 package serv
 
 import (
-	"opachat/tools"
 	"sync"
+
+	"opachat/tools"
 )
 
 var rooms map[string]*Room
@@ -165,43 +166,29 @@ func GetOsaFromRoom(uqroom_in string) *OutSaver {
 	return roo.getOsa()
 }
 
-func GetShowRooms() tools.RoomsDebugType {
-	rt := tools.RoomsDebugType{}
-	rt.Cap = "Rooms"
-	rt.List = []tools.RoomsDebugType{}
+func GetShowRooms() []tools.RoomDebugType {
+	list := []tools.RoomDebugType{}
 
 	lockRooms.RLock()
 	for _, r := range rooms {
-		room_item := tools.RoomsDebugType{}
-		room_item.Cap = r.getInfo()
-		room_item.List = []tools.RoomsDebugType{}
+		rt := tools.RoomDebugType{}
+		rt.Room = r.getInfo()
 
-		some_item := tools.RoomsDebugType{}
-		some_item.Cap = "Osa"
 		osa := r.getOsa()
-		if osa == nil {
-			some_item.List = []tools.RoomsDebugType{{Cap: "no osa"}}
-		} else {
-			some_item.List = []tools.RoomsDebugType{{Cap: tools.DebugJ(osa, false, "", "")}}
+		if osa != nil {
+			rt.Osa = tools.DebugJ(osa, false, "", "")
 		}
 
-		room_item.List = append(room_item.List, some_item)
-
-		some_item = tools.RoomsDebugType{}
-		some_item.Cap = "Talkers"
-		some_item.List = []tools.RoomsDebugType{}
-
+		tlist := []string{}
 		for _, t := range r.talkers {
-			ti := tools.RoomsDebugType{}
-			ti.Cap = t.getInfo()
-			some_item.List = append(some_item.List, ti)
+			tlist = append(tlist, t.getInfo())
 		}
 
-		room_item.List = append(room_item.List, some_item)
+		rt.Talkers = tlist
 
-		rt.List = append(rt.List, room_item)
+		list = append(list, rt)
 	}
 	lockRooms.RUnlock()
 
-	return rt
+	return list
 }

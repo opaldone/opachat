@@ -1,15 +1,17 @@
 package serv
 
 import (
-	"opachat/tools"
 	"os/exec"
 	"strconv"
+
+	"opachat/tools"
 )
 
 func startRec(r *Room) {
 	rid, rke, js_file := r.setKeSaver()
 
-	e := tools.Env()
+	e := tools.Env(true)
+
 	cmd := exec.Command("./scr/s_s",
 		rid,
 		rke,
@@ -22,7 +24,6 @@ func startRec(r *Room) {
 	)
 
 	err := cmd.Start()
-
 	if err != nil {
 		tools.Danger("startRec", err)
 	}
@@ -42,7 +43,6 @@ func stopRec(r *Room) {
 	)
 
 	err := cmd.Start()
-
 	if err != nil {
 		tools.Danger("stopRec", err)
 	}

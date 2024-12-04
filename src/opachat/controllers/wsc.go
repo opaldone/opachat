@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
+
 	"opachat/serv"
 	"opachat/tools"
-	"strconv"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -27,7 +28,6 @@ func Ws(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	ke := qv.Get("ke")
 
 	perroom, err := strconv.Atoi(ps.ByName("perroom"))
-
 	if err != nil {
 		tools.Danger("perroom convert", err)
 	}

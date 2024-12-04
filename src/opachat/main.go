@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
+
 	"opachat/controllers"
 	"opachat/tools"
-	"time"
 
 	"golang.org/x/crypto/acme/autocert"
 )
@@ -18,7 +19,7 @@ var ct = map[string]int64{
 }
 
 func main() {
-	e := tools.Env()
+	e := tools.Env(false)
 
 	if e.Debug {
 		startDevTLS(e)

@@ -3,11 +3,12 @@ package serv
 import (
 	"encoding/json"
 	"fmt"
-	"opachat/tools"
 	"os"
 	"sync"
 	"syscall"
 	"time"
+
+	"opachat/tools"
 
 	"github.com/pion/webrtc/v4"
 )
@@ -181,11 +182,7 @@ func (r *Room) canPutTalker(uquser string) bool {
 	_, exists := r.talkers[uquser]
 	r.lockRoom.RUnlock()
 
-	if exists {
-		return false
-	}
-
-	return true
+	return !exists
 }
 
 func (r *Room) addTalker(c *Client, av *AVConfig) *Talker {
@@ -255,6 +252,7 @@ func (r *Room) notifTalkersStartedRecord(me *Client) {
 		talker.wsc.sendMeStartedRecord(res)
 	}
 }
+
 func (r *Room) notifTalkersStoppedRecord(me *Client) {
 	r.lockRoom.RLock()
 	defer r.lockRoom.RUnlock()
@@ -280,21 +278,23 @@ func (r *Room) notifTalkerAnotherRecord(c *Client) {
 	defer r.lockRoom.RUnlock()
 
 	for _, talker := range r.talkers {
-		if talker.wsc.recording {
-			wc := WConnected{
-				StrID:     talker.strID,
-				Uquser:    talker.wsc.uquser,
-				Nik:       talker.wsc.nik,
-				Recording: talker.wsc.recording,
-			}
-
-			bont, _ := json.Marshal(wc)
-			res := string(bont)
-
-			c.sendMeAnotherRecord(res)
-
-			return
+		if !talker.wsc.recording {
+			continue
 		}
+
+		wc := WConnected{
+			StrID:     talker.strID,
+			Uquser:    talker.wsc.uquser,
+			Nik:       talker.wsc.nik,
+			Recording: talker.wsc.recording,
+		}
+
+		bont, _ := json.Marshal(wc)
+		res := string(bont)
+
+		c.sendMeAnotherRecord(res)
+
+		return
 	}
 }
 
@@ -327,7 +327,7 @@ func (r *Room) notifTalkersChangedScreen(me *Client, sv *AVConfig) {
 
 	wc := WConnected{
 		StrID:    me.talker.strID,
-		Uquser:   me.talker.wsc.uquser,
+		Uquser:   me.uquser,
 		ScreenOn: sv.ScreenOn,
 		Mic:      sv.Sound,
 		Cam:      sv.Video,
@@ -404,42 +404,36 @@ func (r *Room) monitorRecording() {
 
 		err := proc.Signal(syscall.Signal(0))
 
-		if err != nil {
-			return false
-		}
-		return true
+		return err == nil
 	}
 
 	osa_in := r.getOsa()
 	pids := []int{}
 
-	for {
-		select {
-		case <-ticker.C:
-			if osa_in != nil && len(pids) == 0 {
-				pids = append(pids, osa_in.Pxv)
-				pids = append(pids, osa_in.Pff)
-				pids = append(pids, osa_in.Pgoo)
-			}
+	for range ticker.C {
+		if osa_in != nil && len(pids) == 0 {
+			pids = append(pids, osa_in.Pxv)
+			pids = append(pids, osa_in.Pff)
+			pids = append(pids, osa_in.Pgoo)
+		}
 
-			if osa_in == nil {
-				osa_in = r.getOsa()
-			}
+		if osa_in == nil {
+			osa_in = r.getOsa()
+		}
 
-			if len(pids) == 0 {
+		if len(pids) == 0 {
+			continue
+		}
+
+		for _, pid := range pids {
+			if _running(pid) {
 				continue
 			}
 
-			for _, pid := range pids {
-				if _running(pid) {
-					continue
-				}
-
-				wr_cl := r.getWriter()
-				if wr_cl != nil {
-					r.stopRecord(wr_cl)
-					return
-				}
+			wr_cl := r.getWriter()
+			if wr_cl != nil {
+				r.stopRecord(wr_cl)
+				return
 			}
 		}
 	}
@@ -507,7 +501,6 @@ func (r *Room) clearKeSaver() {
 func (r *Room) getOsa() *OutSaver {
 	_, js_file := r.getPathOsa()
 	os_json_str, err := os.Open(js_file)
-
 	if err != nil {
 		return nil
 	}
@@ -515,7 +508,6 @@ func (r *Room) getOsa() *OutSaver {
 	decoder := json.NewDecoder(os_json_str)
 	ous := &OutSaver{}
 	err = decoder.Decode(ous)
-
 	if err != nil {
 		tools.Danger(fmt.Sprintf("Cannot parse %s", js_file), err)
 		return nil
@@ -532,9 +524,8 @@ func (r *Room) removeRecord() {
 	}
 
 	err := os.Remove(js_file)
-
 	if err != nil {
-		tools.Danger("Removing file", err)
+		tools.Danger("Removing js file", err)
 	}
 
 	r.clearKeSaver()

@@ -6,11 +6,8 @@ import (
 )
 
 func init() {
-	afterInit()
-}
-
-func afterInit() {
 	loadConfig()
+	setCsrf()
 }
 
 // Danger puts a error message

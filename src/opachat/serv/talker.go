@@ -3,9 +3,9 @@ package serv
 import (
 	"encoding/json"
 	"fmt"
-	"opachat/tools"
-
 	"sync"
+
+	"opachat/tools"
 
 	"github.com/pion/interceptor"
 	"github.com/pion/interceptor/pkg/intervalpli"
@@ -73,7 +73,6 @@ func (t *Talker) myOnTrack(jsTrack *webrtc.TrackRemote, _ *webrtc.RTPReceiver) {
 
 	for {
 		i, _, err := jsTrack.Read(buf)
-
 		if err != nil {
 			return
 		}
@@ -110,7 +109,6 @@ func (t *Talker) iceCandidate(i *webrtc.ICECandidate) {
 	}
 
 	candidateString, err := json.Marshal(i.ToJSON())
-
 	if err != nil {
 		tools.Danger("iceCandidate Marshal", err)
 		return
@@ -168,20 +166,17 @@ func (t *Talker) connect() {
 
 	m := &webrtc.MediaEngine{}
 	err = m.RegisterDefaultCodecs()
-
 	if err != nil {
 		tools.Danger("RegisterDefaultCodecs", err)
 	}
 
 	i := &interceptor.Registry{}
 	err = webrtc.RegisterDefaultInterceptors(m, i)
-
 	if err != nil {
 		tools.Danger("RegisterDefaultInterceptors", err)
 	}
 
 	intervalPliFactory, err := intervalpli.NewReceiverInterceptor()
-
 	if err != nil {
 		tools.Danger("NewReceiverInterceptor", err)
 	}
@@ -193,7 +188,6 @@ func (t *Talker) connect() {
 	t.pc, err = webrtc.
 		NewAPI(webrtc.WithMediaEngine(m), webrtc.WithInterceptorRegistry(i)).
 		NewPeerConnection(peer_conf)
-
 	if err != nil {
 		tools.Danger("New peer connection", err)
 	}

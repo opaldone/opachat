@@ -27,12 +27,13 @@ type ConfSaver struct {
 	Timeout  int    `json:"timeout"`
 }
 
-var conf *Configuration
-var csrf_key string
+var (
+	conf     *Configuration
+	csrf_key string
+)
 
 func loadConfig() {
 	file, err := os.Open("config.json")
-
 	if err != nil {
 		Danger("Cannot open config.json file", err)
 	}
@@ -40,16 +41,21 @@ func loadConfig() {
 	decoder := json.NewDecoder(file)
 	conf = &Configuration{}
 	err = decoder.Decode(conf)
-
 	if err != nil {
 		Danger("Cannot get configuration from file", err)
 	}
+}
 
+func setCsrf() {
 	csrf_key = CreateUUID()
 }
 
 // Env gets configuration
-func Env() *Configuration {
+func Env(reload bool) *Configuration {
+	if reload {
+		loadConfig()
+	}
+
 	return conf
 }
 
