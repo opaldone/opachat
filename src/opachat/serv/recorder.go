@@ -8,19 +8,25 @@ import (
 )
 
 func startRec(r *Room) {
-	rid, rke, js_file := r.setKeSaver()
-
 	e := tools.Env(true)
+
+	if e.Recorder == nil {
+		tools.Log("Recorder", "config of Recorder is not set")
+		return
+	}
+
+	rid, rke, js_file := r.setKeRecorder()
 
 	cmd := exec.Command("./scr/s_s",
 		rid,
 		rke,
 		js_file,
-		e.Saver.UrlVirt,
-		e.Saver.IHw,
-		e.Saver.ScrRes,
-		e.Saver.LogLevel,
-		strconv.Itoa(e.Saver.Timeout),
+		e.Recorder.UrlVirt,
+		e.Recorder.SoundLib,
+		e.Recorder.IHw,
+		e.Recorder.ScrRes,
+		e.Recorder.LogLevel,
+		strconv.Itoa(e.Recorder.Timeout),
 	)
 
 	err := cmd.Start()

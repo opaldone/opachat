@@ -480,7 +480,7 @@ func (r *Room) getPathOsa() (string, string) {
 	return rid, js_file
 }
 
-func (r *Room) setKeSaver() (string, string, string) {
+func (r *Room) setKeRecorder() (string, string, string) {
 	ke_new := tools.CreateUUID()
 
 	r.lockRoom.Lock()
@@ -500,6 +500,7 @@ func (r *Room) clearKeSaver() {
 
 func (r *Room) getOsa() *OutSaver {
 	_, js_file := r.getPathOsa()
+
 	os_json_str, err := os.Open(js_file)
 	if err != nil {
 		return nil
