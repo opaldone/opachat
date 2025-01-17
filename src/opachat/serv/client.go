@@ -137,6 +137,18 @@ func (c *Client) sendMeAnotherRecord(str string) {
 	c.send <- bts
 }
 
+func (c *Client) sendMeChat(str string) {
+	if len(str) == 0 {
+		return
+	}
+
+	msg := new(Message)
+	msg.Tp = CHAT
+	msg.Content = str
+	bts, _ := json.Marshal(msg)
+	c.send <- bts
+}
+
 func (c *Client) processMessage(msg *Message) {
 	switch msg.Tp {
 	case JOINROOM:
@@ -188,6 +200,8 @@ func (c *Client) processMessage(msg *Message) {
 		stopRecord(c)
 	case RREC:
 		removeRecord(c)
+	case CHAT:
+		chatMessage(c, msg.Content)
 	}
 }
 
@@ -211,7 +225,7 @@ func (c *Client) readPump() {
 			break
 		}
 
-		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
+		message = bytes.TrimSpace(bytes.ReplaceAll(message, newline, space))
 
 		msg := decMessage(message)
 
@@ -243,7 +257,6 @@ func (c *Client) writePump() {
 
 			w.Write(message)
 
-			// Add queued chat messages to the current websocket message.
 			n := len(c.send)
 			for i := 0; i < n; i++ {
 				w.Write(newline)

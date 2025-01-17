@@ -20,6 +20,7 @@ const (
 	EREC      = "endrecord"
 	AREC      = "anotherrecord"
 	RREC      = "remrec"
+	CHAT      = "chat"
 )
 
 // Message define our message object
@@ -43,6 +44,7 @@ type WConnected struct {
 	ScreenOn  bool   `json:"screen_on"`
 	Recording bool   `json:"recording"`
 	Vili      string `json:"vili"`
+	ChatMsg   string `json:"chat_message"`
 }
 
 type ListConnected struct {
