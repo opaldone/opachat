@@ -14,12 +14,28 @@ func init() {
 	rooms = make(map[string]*Room)
 }
 
-func CheckKeRoom(uqroom_in string, ke_in string) bool {
+func getRoom(uqroom_in string) *Room {
 	lockRooms.RLock()
 	roo, exists := rooms[uqroom_in]
 	lockRooms.RUnlock()
 
 	if !exists {
+		return nil
+	}
+
+	return roo
+}
+
+func getClientRoom(cl *Client) *Room {
+	uqroom_in := cl.uqroom
+
+	return getRoom(uqroom_in)
+}
+
+func CheckKeRoom(uqroom_in string, ke_in string) bool {
+	roo := getRoom(uqroom_in)
+
+	if roo == nil {
 		return false
 	}
 
@@ -27,11 +43,9 @@ func CheckKeRoom(uqroom_in string, ke_in string) bool {
 }
 
 func createRoom(uqroom string, perroom int) {
-	lockRooms.RLock()
-	_, exists := rooms[uqroom]
-	lockRooms.RUnlock()
+	roo := getRoom(uqroom)
 
-	if exists {
+	if roo != nil {
 		return
 	}
 
@@ -43,25 +57,21 @@ func createRoom(uqroom string, perroom int) {
 }
 
 func joinRoom(c *Client, av *AVConfig) *Talker {
-	lockRooms.RLock()
-	r, exists := rooms[c.uqroom]
-	lockRooms.RUnlock()
+	roo := getClientRoom(c)
 
-	if !exists {
+	if roo == nil {
 		return nil
 	}
 
-	talker := r.addTalker(c, av)
+	talker := roo.addTalker(c, av)
 
 	return talker
 }
 
 func removeRoom(uqroom string) {
-	lockRooms.RLock()
-	_, exists := rooms[uqroom]
-	lockRooms.RUnlock()
+	roo := getRoom(uqroom)
 
-	if !exists {
+	if roo == nil {
 		return
 	}
 
@@ -71,11 +81,9 @@ func removeRoom(uqroom string) {
 }
 
 func whoConnectedRoom(uqroom_in string, me string) (res string) {
-	lockRooms.RLock()
-	roo, exists := rooms[uqroom_in]
-	lockRooms.RUnlock()
+	roo := getRoom(uqroom_in)
 
-	if !exists {
+	if roo == nil {
 		return
 	}
 
@@ -85,13 +93,9 @@ func whoConnectedRoom(uqroom_in string, me string) (res string) {
 }
 
 func talkerChangedOpts(me *Client) {
-	uqroom_in := me.uqroom
+	roo := getClientRoom(me)
 
-	lockRooms.RLock()
-	roo, exists := rooms[uqroom_in]
-	lockRooms.RUnlock()
-
-	if !exists {
+	if roo == nil {
 		return
 	}
 
@@ -99,13 +103,9 @@ func talkerChangedOpts(me *Client) {
 }
 
 func talkerChangedScreen(me *Client, sv *AVConfig) {
-	uqroom_in := me.uqroom
+	roo := getClientRoom(me)
 
-	lockRooms.RLock()
-	roo, exists := rooms[uqroom_in]
-	lockRooms.RUnlock()
-
-	if !exists {
+	if roo == nil {
 		return
 	}
 
@@ -113,13 +113,9 @@ func talkerChangedScreen(me *Client, sv *AVConfig) {
 }
 
 func startRecord(cl *Client) {
-	uqroom_in := cl.uqroom
+	roo := getClientRoom(cl)
 
-	lockRooms.RLock()
-	roo, exists := rooms[uqroom_in]
-	lockRooms.RUnlock()
-
-	if !exists {
+	if roo == nil {
 		return
 	}
 
@@ -127,13 +123,9 @@ func startRecord(cl *Client) {
 }
 
 func stopRecord(cl *Client) {
-	uqroom_in := cl.uqroom
+	roo := getClientRoom(cl)
 
-	lockRooms.RLock()
-	roo, exists := rooms[uqroom_in]
-	lockRooms.RUnlock()
-
-	if !exists {
+	if roo == nil {
 		return
 	}
 
@@ -141,25 +133,29 @@ func stopRecord(cl *Client) {
 }
 
 func removeRecord(cl *Client) {
-	uqroom_in := cl.uqroom
+	roo := getClientRoom(cl)
 
-	lockRooms.RLock()
-	roo, exists := rooms[uqroom_in]
-	lockRooms.RUnlock()
-
-	if !exists {
+	if roo == nil {
 		return
 	}
 
 	roo.removeRecord()
 }
 
-func GetOsaFromRoom(uqroom_in string) *OutSaver {
-	lockRooms.RLock()
-	roo, exists := rooms[uqroom_in]
-	lockRooms.RUnlock()
+func chatMessage(cl *Client, msg string) {
+	roo := getClientRoom(cl)
 
-	if !exists {
+	if roo == nil {
+		return
+	}
+
+	roo.chatMessage(cl, msg)
+}
+
+func GetOsaFromRoom(uqroom_in string) *OutSaver {
+	roo := getRoom(uqroom_in)
+
+	if roo == nil {
 		return nil
 	}
 

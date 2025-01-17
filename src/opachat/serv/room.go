@@ -201,6 +201,28 @@ func (r *Room) addTalker(c *Client, av *AVConfig) *Talker {
 	return newTalker
 }
 
+func (r *Room) removeTalker(idTalker string) {
+	r.lockRoom.RLock()
+	_, exists := r.talkers[idTalker]
+	r.lockRoom.RUnlock()
+
+	if !exists {
+		return
+	}
+
+	r.lockRoom.Lock()
+	delete(r.talkers, idTalker)
+	r.lockRoom.Unlock()
+
+	r.lockRoom.RLock()
+	len_talkers := len(r.talkers)
+	r.lockRoom.RUnlock()
+
+	if len_talkers == 0 {
+		r.removeMe(r.id)
+	}
+}
+
 func (r *Room) getConnectedList(me string) (res string) {
 	r.lockRoom.RLock()
 	defer r.lockRoom.RUnlock()
@@ -345,25 +367,21 @@ func (r *Room) notifTalkersChangedScreen(me *Client, sv *AVConfig) {
 	}
 }
 
-func (r *Room) removeTalker(idTalker string) {
+func (r *Room) chatMessage(me *Client, msg string) {
 	r.lockRoom.RLock()
-	_, exists := r.talkers[idTalker]
-	r.lockRoom.RUnlock()
+	defer r.lockRoom.RUnlock()
 
-	if !exists {
-		return
+	wc := WConnected{
+		StrID:   me.talker.strID,
+		Uquser:  me.uquser,
+		ChatMsg: msg,
 	}
 
-	r.lockRoom.Lock()
-	delete(r.talkers, idTalker)
-	r.lockRoom.Unlock()
+	bont, _ := json.Marshal(wc)
+	res := string(bont)
 
-	r.lockRoom.RLock()
-	len_talkers := len(r.talkers)
-	r.lockRoom.RUnlock()
-
-	if len_talkers == 0 {
-		r.removeMe(r.id)
+	for _, talker := range r.talkers {
+		talker.wsc.sendMeChat(res)
 	}
 }
 
