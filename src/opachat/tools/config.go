@@ -8,9 +8,9 @@ import (
 // Configuration config of the application
 type Configuration struct {
 	Appname  string              `json:"appname"`
-	Debug    bool                `json:"debug"`
 	Address  string              `json:"address"`
 	Port     int                 `json:"port"`
+	Acme     bool                `json:"acme"`
 	Acmehost string              `json:"acmehost"`
 	DirCache string              `json:"dirCache"`
 	Crt      string              `json:"crt,omitempty"`
