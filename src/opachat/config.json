@@ -1,9 +1,9 @@
 {
   "appname": "opachat",
-  "debug": true,
   "address": "0.0.0.0",
   "port": 7778,
-  "acmehost": "admigo.uk.to",
+  "acme": false,
+  "acmehost": "opaldone.click",
   "dirCache": "./certs",
   "crt": "/mnt/terik/a_my/admigo_project/admigo/bin/certs_local/server.crt",
   "key": "/mnt/terik/a_my/admigo_project/admigo/bin/certs_local/server.key",
