@@ -279,6 +279,10 @@ func (c *Client) stopClient() {
 	c.hub.unregister <- c
 	c.conn.Close()
 
+	if c.talker == nil {
+		return
+	}
+
 	c.talker.stopTalker()
 }
 
