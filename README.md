@@ -1,6 +1,7 @@
 # Opachat
-Video and audio broadcasting WebRTC server is based on
+Video and audio broadcasting WebRTC server. With the ability of recording a chat session, both on the server and on the client. An example of a client for the server You can find here [opaweb](https://github.com/opaldone/opaweb)
 
+## It depends on these great packages
 ![@pion](https://avatars.githubusercontent.com/u/38192892?s=15&v=4) https://github.com/pion/webrtc \
 ![@gorilla](https://avatars.githubusercontent.com/u/489566?s=15&v=4) https://github.com/gorilla/csrf \
 ![@gorilla](https://avatars.githubusercontent.com/u/489566?s=15&v=4) https://github.com/gorilla/websocket \
@@ -53,4 +54,25 @@ ls -lash --group-directories-first bin
 ##### Start the server
 ```bash
 ./r
+```
+## About config
+The config file is located here __opachat/bin/config.json__
+```json
+{
+  "appname": "opachat", // Just a name of application
+  "address": "0.0.0.0", // IP address of the server, zeros mean current host
+  "port": 7778, // Port, don't forget to open for firewall
+  "acme": false, // Set to true if You need to use acme/autocert
+  "acmehost": "opaldone.click", // The domain name, set acme: true
+  "dirCache": "./certs", // The folder where acme/autocert will store the keys, set acme: true
+  "crt": "/server.crt", // The path to your HTTPS cert key, set acme: false
+  "key": "/server.key", // The path to your HTTPS key, set acme: false
+  "iceList": [ // Settings of WebRTC turn server
+    {
+      "urls": "turn:[some ip]:[some port]", // Example turn:192.177.0.555:3478
+      "username": "login", // The login for turn server if exists
+      "credential": "password" // The password for turn server
+    }
+  ]
+}
 ```
