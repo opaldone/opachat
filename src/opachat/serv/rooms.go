@@ -2,8 +2,6 @@ package serv
 
 import (
 	"sync"
-
-	"opachat/tools"
 )
 
 var rooms map[string]*Room
@@ -152,7 +150,7 @@ func chatMessage(cl *Client, msg string) {
 	roo.chatMessage(cl, msg)
 }
 
-func GetOsaFromRoom(uqroom_in string) *OutSaver {
+func GetOsaFromRoom(uqroom_in string) *OsaType {
 	roo := getRoom(uqroom_in)
 
 	if roo == nil {
@@ -162,29 +160,13 @@ func GetOsaFromRoom(uqroom_in string) *OutSaver {
 	return roo.getOsa()
 }
 
-func GetShowRooms() []tools.RoomDebugType {
-	list := []tools.RoomDebugType{}
-
+func GetShowRooms() (ret RoomsDebugType) {
 	lockRooms.RLock()
+	defer lockRooms.RUnlock()
+
 	for _, r := range rooms {
-		rt := tools.RoomDebugType{}
-		rt.Room = r.getInfo()
-
-		osa := r.getOsa()
-		if osa != nil {
-			rt.Osa = tools.DebugJ(osa, false, "", "")
-		}
-
-		tlist := []string{}
-		for _, t := range r.talkers {
-			tlist = append(tlist, t.getInfo())
-		}
-
-		rt.Talkers = tlist
-
-		list = append(list, rt)
+		ret.Rooms = append(ret.Rooms, r.getInfo())
 	}
-	lockRooms.RUnlock()
 
-	return list
+	return
 }

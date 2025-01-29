@@ -58,12 +58,14 @@ func (t *Talker) getPeerConnectionConfig() (peerConnectionConfig webrtc.Configur
 }
 
 func (t *Talker) myOnTrack(jsTrack *webrtc.TrackRemote, _ *webrtc.RTPReceiver) {
-	t.strID = jsTrack.StreamID()
+	var vid bool
 
-	vid := true
+	vid = true
 	if jsTrack.Kind() == webrtc.RTPCodecTypeAudio {
 		vid = false
 	}
+
+	t.strID = jsTrack.StreamID()
 
 	trackLocal := t.room.addTrack(jsTrack)
 	defer t.room.removeTrack(trackLocal)
@@ -218,22 +220,28 @@ func (t *Talker) stopTalker() {
 	t.room.removeTalker(t.wsc.uquser)
 }
 
-func (t *Talker) getInfo() (ret string) {
+func (t *Talker) getInfo() (ret TalkerDebType) {
 	t.lockO.RLock()
 	defer t.lockO.RUnlock()
 
-	ret = fmt.Sprintf(
-		"nik=%s "+
-			"uquser=%s "+
-			"strID=%s "+
-			"recording=%t "+
-			"screen=%t "+
-			"sound=%t "+
-			"video=%t "+
-			"ke=%s",
-		t.wsc.nik, t.wsc.uquser, t.strID,
-		t.wsc.recording, t.wsc.screen, t.sound, t.video, t.wsc.ke,
-	)
+	ret.Nik = t.wsc.nik
+	ret.Uquser = t.wsc.uquser
+	ret.StrID = t.strID
+	ret.Recording = t.wsc.recording
+	ret.Screen = t.wsc.screen
+	ret.Sound = t.sound
+	ret.Video = t.video
+	ret.Ke = t.wsc.ke
+
+	for _, s := range t.pc.GetStats() {
+		switch stat := s.(type) {
+		case webrtc.ICECandidateStats:
+			if stat.Type == webrtc.StatsTypeRemoteCandidate {
+				ret.Ices = append(ret.Ices, fmt.Sprintf("%s %s:%d", stat.Type, stat.IP, stat.Port))
+			}
+		default:
+		}
+	}
 
 	return
 }

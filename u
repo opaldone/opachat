@@ -32,6 +32,27 @@ function check_dirs() {
     done
 }
 
+function copy_folder() {
+    local -n ari=$1
+
+    for page in "${ari[@]}"
+    do
+        IFS=";" read -r -a arr <<< "${page}"
+
+        declare fsr="${arr[0]}"
+        declare fde="${arr[1]}"
+
+        if [ -e $fde ]; then
+            continue
+        fi
+
+        declare out=$(cp -r -v "$fsr" "$fde")
+        if [[ ! -z $out ]]; then
+            echo "copy dir $fsr"
+        fi
+    done
+}
+
 function copira() {
     local -n acp=$1
 
@@ -68,9 +89,18 @@ EE=(
     "sv_logs;$bin/sv_logs/*"
 )
 
+FF=(
+    "$src/static/images;$bin/static/images/"
+)
+
 PP=(
-# config
     "$src/config.json;$bin/config.json"
+    "$src/templates/site/layout_emp.html;$bin/templates/site/layout_emp.html"
+    "$src/static/css/common/reset.css;$bin/static/css/common/reset.css"
+# debug page
+    "$src/templates/site/deb/dix.html;$bin/templates/site/deb/dix.html"
+# debug page css
+    "$src/static/css/pages/deb/st.css;$bin/static/css/deb/st.css"
 # bash scripts
     "$src/scr/s_s;$bin/scr/s_s"
     "$src/scr/k_s;$bin/scr/k_s"
@@ -80,8 +110,11 @@ echo -en "\033]0;$TTL\a"
 
 clear
 
+check_dirs FF
 check_dirs EE
 check_dirs PP
+
+copy_folder FF
 
 while true;
 do

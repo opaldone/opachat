@@ -1,0 +1,106 @@
+{{ define "title" }}Debug{{ end }}
+{{ define "content" }}
+  <div id="deb-cont">
+    <table class="deb-tbl">
+      <thead>
+        <tr>
+          <th style="width:30%">RoomId</th>
+          <th style="width:20%">TalkersLen</th>
+          <th style="width:20%">TrackLocalsLen</th>
+          <th style="width:30%">KeSaver</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{ range .Rooms }}
+          <tr>
+            <td>{{ .RoomId }}</td>
+            <td>{{ .TalkersLen }}</td>
+            <td>{{ .TrackLocalsLen }}</td>
+            <td>{{ .KeSaver }}</td>
+          </tr>
+          {{ if .Osa }}
+            <tr>
+              <td class="w-tbl" colspan="4">
+                <table class="deb-tbl">
+                  <thead>
+                    <tr>
+                      <th style="width:33.333%">Pxv</th>
+                      <th style="width:33.333%">Pff</th>
+                      <th style="width:33.333%">Pgoo</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>{{ .Osa.Pxv }}</td>
+                      <td>{{ .Osa.Pff }}</td>
+                      <td>{{ .Osa.Pgoo }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+          {{ end }}
+          <tr>
+            <td class="w-tbl" colspan="4">
+              <table class="deb-tbl">
+                <thead>
+                  <tr>
+                    <th style="width:20%">Nik</th>
+                    <th style="width:20%">Uquser</th>
+                    <th style="width:20%">StrID</th>
+                    <th style="width:2%">Recording</th>
+                    <th style="width:2%">Screen</th>
+                    <th style="width:2%">Sound</th>
+                    <th style="width:2%">Video</th>
+                    <th style="width:10%">Ke</th>
+                    <th style='width:22%'>Ices</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{ range .Talkers }}
+                    <tr>
+                      <td>{{ .Nik }}</td>
+                      <td>{{ .Uquser }}</td>
+                      <td>{{ .StrID }}</td>
+                      <td>
+                        {{ if .Recording }}
+                          {{ .Recording }}
+                        {{ end }}
+                      </td>
+                      <td>
+                        {{ if .Screen }}
+                          {{ .Screen }}
+                        {{ end }}
+                      </td>
+                      <td>
+                        {{ if .Sound }}
+                          {{ .Sound }}
+                        {{ end }}
+                      </td>
+                      <td>
+                        {{ if .Video }}
+                          {{ .Video }}
+                        {{ end }}
+                      </td>
+                      <td>{{ .Ke }}</td>
+                      <td>
+                        <ul>
+                          {{ range .Ices }}
+                            <li>{{ . }}</li>
+                          {{ end }}
+                        </ul>
+                      </td>
+                    </tr>
+                  {{ end }}
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        {{ end }}
+      </tbody>
+    </table>
+  </div>
+{{ end }}
+{{ define "styles" }}
+<link rel="stylesheet" type="text/css" href="/static/css/deb/st.css" />
+{{ end }}

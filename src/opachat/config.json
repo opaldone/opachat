@@ -2,6 +2,7 @@
   "appname": "opachat",
   "address": "0.0.0.0",
   "port": 7778,
+  "static": "static",
   "acme": false,
   "acmehost": "opaldone.click",
   "dirCache": "./certs",

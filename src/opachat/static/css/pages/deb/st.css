@@ -1,0 +1,52 @@
+#deb-cont {
+  font-family: "Roboto Mono", monospace;
+  width: 100%;
+  padding: 20px;
+
+}
+
+.deb-tbl {
+  width: 100%;
+}
+
+.deb-tbl .deb-tbl {
+  background-color: #f7f7f7;
+}
+
+.deb-tbl th,
+.deb-tbl td {
+  font-size: 14px;
+  line-height: 16px;
+  padding: 5px 15px 9px 15px;
+  border-color: #ededed;
+  border-style: solid;
+  border-width: 0 0 1px 0;
+  vertical-align: middle;
+}
+
+.deb-tbl th {
+  position: relative;
+  font-weight: normal;
+  color: #000;
+  background-color: #e7e7e7;
+  text-align: left;
+}
+
+.deb-tbl td {
+  position: relative;
+  color: #575757;
+}
+
+.deb-tbl td.w-tbl {
+  border-width: 0;
+}
+
+.deb-tbl td ul {
+  font-size: 12px;
+  line-height: 14px;
+  color: #000;
+}
+
+.deb-tbl td ul li + li {
+  margin-top: 3px;
+}
