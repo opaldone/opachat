@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -36,8 +35,6 @@ func Ws(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 }
 
 func Di(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	w.Header().Set("Content-Type", "application/json")
-
 	uq := ps.ByName("uq")
 
 	if uq != tools.GetKeyCSRF() {
@@ -48,9 +45,7 @@ func Di(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 
-	some := serv.GetShowRooms()
+	deb := serv.GetShowRooms()
 
-	output, _ := json.MarshalIndent(some, "", "\t")
-
-	w.Write(output)
+	GenerateHTMLEmp(w, r, deb, []string{"deb/dix"})
 }

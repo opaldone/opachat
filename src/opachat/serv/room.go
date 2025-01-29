@@ -13,7 +13,7 @@ import (
 	"github.com/pion/webrtc/v4"
 )
 
-type OutSaver struct {
+type OsaType struct {
 	Pxv  int `json:"pxv,omitempty"`
 	Pff  int `json:"pff,omitempty"`
 	Pgoo int `json:"pgoo,omitempty"`
@@ -28,6 +28,31 @@ type Room struct {
 	removeMe    func(string)
 	trackLocals map[string]*webrtc.TrackLocalStaticRTP
 	lockRoom    sync.RWMutex
+}
+
+type TalkerDebType struct {
+	Nik       string   `json:"nik"`
+	Uquser    string   `json:"uquser"`
+	StrID     string   `json:"strID"`
+	Recording bool     `json:"recording"`
+	Screen    bool     `json:"screen"`
+	Sound     bool     `json:"sound"`
+	Video     bool     `json:"video"`
+	Ke        string   `json:"ke"`
+	Ices      []string `json:"ices"`
+}
+
+type RoomDebType struct {
+	RoomId         string          `json:"room_id"`
+	TalkersLen     int             `json:"talkers_len"`
+	TrackLocalsLen int             `json:"trackLocals_len"`
+	KeSaver        string          `json:"keSaver"`
+	Talkers        []TalkerDebType `json:"talkers"`
+	Osa            *OsaType        `json:"osa,omitempty"`
+}
+
+type RoomsDebugType struct {
+	Rooms []RoomDebType `json:"rooms,omitempty"`
 }
 
 // NewRoom creates new room
@@ -516,7 +541,7 @@ func (r *Room) clearKeSaver() {
 	r.lockRoom.Unlock()
 }
 
-func (r *Room) getOsa() *OutSaver {
+func (r *Room) getOsa() *OsaType {
 	_, js_file := r.getPathOsa()
 
 	os_json_str, err := os.Open(js_file)
@@ -525,7 +550,7 @@ func (r *Room) getOsa() *OutSaver {
 	}
 
 	decoder := json.NewDecoder(os_json_str)
-	ous := &OutSaver{}
+	ous := &OsaType{}
 	err = decoder.Decode(ous)
 	if err != nil {
 		tools.Danger(fmt.Sprintf("Cannot parse %s", js_file), err)
@@ -550,16 +575,23 @@ func (r *Room) removeRecord() {
 	r.clearKeSaver()
 }
 
-func (r *Room) getInfo() (ret string) {
+func (r *Room) getInfo() (ret RoomDebType) {
 	r.lockRoom.RLock()
 	defer r.lockRoom.RUnlock()
 
-	ret = fmt.Sprintf("room_id=%s "+
-		"talkers_len=%d "+
-		"trackLocals_len=%d "+
-		"keSaver=%s",
-		r.id, len(r.talkers), len(r.trackLocals), r.keSaver,
-	)
+	ret.RoomId = r.id
+	ret.TalkersLen = len(r.talkers)
+	ret.TrackLocalsLen = len(r.trackLocals)
+	ret.KeSaver = r.keSaver
+
+	for _, t := range r.talkers {
+		ret.Talkers = append(ret.Talkers, t.getInfo())
+	}
+
+	osa := r.getOsa()
+	if osa != nil {
+		ret.Osa = osa
+	}
 
 	return
 }
