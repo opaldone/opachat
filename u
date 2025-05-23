@@ -1,12 +1,8 @@
 #!/bin/bash
 
-SETCOLOR_SUCCESS="echo -en \\033[0;32m"
-SETCOLOR_NORMAL="echo -en \\033[0;39m"
-
-declare TTL="CHAT"
-
 declare pw=$("pwd")
 declare project=""
+
 if [[ $pw =~ (.*\/)(.*) ]]; then
     project=${BASH_REMATCH[2]}
 fi
@@ -14,10 +10,11 @@ fi
 declare src="$pw/src/$project"
 declare bin="$pw/bin"
 
-function check_dirs() {
+source ./watch_files
+
+function check_dirs_files() {
     local -n ari=$1
 
-    # creates folders if not exists
     for page in "${ari[@]}"
     do
         IFS=";" read -r -a arr <<< "${page}"
@@ -26,13 +23,13 @@ function check_dirs() {
         declare dirna="$(dirname "${fde}")"
 
         if [ ! -e $dirna ]; then
-            echo "creating $dirna"
+            echo "[Check dirs files mk] $dirna"
             mkdir -p $dirna
         fi
     done
 }
 
-function copy_folder() {
+function copy_folders() {
     local -n ari=$1
 
     for page in "${ari[@]}"
@@ -41,14 +38,25 @@ function copy_folder() {
 
         declare fsr="${arr[0]}"
         declare fde="${arr[1]}"
+        declare dirna="$(dirname "${fde}")"
+        declare c_files=0
 
         if [ -e $fde ]; then
+            declare c_files=$(ls -1q $fde | wc -l)
+        fi
+
+        if [[ $c_files -gt 0 ]]; then
             continue
         fi
 
-        declare out=$(cp -r -v "$fsr" "$fde")
-        if [[ ! -z $out ]]; then
-            echo "copy dir $fsr"
+        declare out_mk=$(mkdir -pv "$fde")
+        if [[ ! -z $out_mk ]]; then
+            echo "[Copy folders mk] $fde"
+        fi
+
+        declare out_cp=$(cp -rv "$fsr" "$dirna")
+        if [[ ! -z $out_cp ]]; then
+            echo "[Copy folders cp] $fsr"
         fi
     done
 }
@@ -65,7 +73,7 @@ function copira() {
         declare fos="${arr[0]}"
         declare fot="${arr[1]}"
 
-        declare out=$(cp -u -v "$fos" "$fot")
+        declare out=$(cp -uv "$fos" "$fot")
 
         if [[ ! -z $out ]]; then
             declare bn=$(basename "$fos")
@@ -79,48 +87,25 @@ function copira() {
     done
 
     if [[ ! -z $some ]]; then
-        printf "%-20s%s\n" "$some"
+        echo "$some"
     fi
 }
-
-EE=(
-    "vid;$bin/vid/*"
-    "prcs;$bin/prcs/*"
-    "sv_logs;$bin/sv_logs/*"
-)
-
-FF=(
-    "$src/static/images;$bin/static/images/"
-)
-
-PP=(
-    "$src/config.json;$bin/config.json"
-    "$src/templates/site/layout_emp.html;$bin/templates/site/layout_emp.html"
-    "$src/static/css/common/reset.css;$bin/static/css/common/reset.css"
-# debug page
-    "$src/templates/site/deb/dix.html;$bin/templates/site/deb/dix.html"
-# debug page css
-    "$src/static/css/pages/deb/st.css;$bin/static/css/deb/st.css"
-# bash scripts
-    "$src/scr/s_s;$bin/scr/s_s"
-    "$src/scr/k_s;$bin/scr/k_s"
-)
 
 echo -en "\033]0;$TTL\a"
 
 clear
 
-check_dirs FF
-check_dirs EE
-check_dirs PP
+if [ ! -z ${E_FOLDERS+x} ]; then
+    check_dirs_files E_FOLDERS
+fi
 
-copy_folder FF
+copy_folders C_FOLDERS
+check_dirs_files W_FILES
 
 while true;
 do
-    copira PP
+    copira W_FILES
     sleep 1
 done
 
 exit 0
-
