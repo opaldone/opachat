@@ -11,7 +11,8 @@ import (
 	"github.com/pion/interceptor/pkg/intervalpli"
 	"github.com/pion/rtp"
 
-	"github.com/pion/webrtc/v4"
+	// "github.com/pion/webrtc/v4"
+	"github.com/pion/webrtc/v3"
 )
 
 type Talker struct {
