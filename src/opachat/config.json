@@ -21,6 +21,6 @@
     "iHw": "0",
     "scrRes": "2560x1080",
     "logLevel": "error",
-    "timeout": 30
+    "timeout": 10
   }
 }

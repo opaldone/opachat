@@ -47,5 +47,5 @@ func Di(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	deb := serv.GetShowRooms()
 
-	GenerateHTMLEmp(w, r, deb, []string{"deb/dix"})
+	GenerateHTMLEmp(w, r, deb, "stru/dix")
 }
