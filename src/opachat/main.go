@@ -76,5 +76,7 @@ func startAcme(e *tools.Configuration) {
 		MaxHeaderBytes: 1 << 20,
 	}
 
+	go http.ListenAndServe(":http", certManager.HTTPHandler(nil))
+
 	log.Fatalln(server.ListenAndServeTLS("", ""))
 }
