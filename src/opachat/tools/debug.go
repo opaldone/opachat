@@ -3,28 +3,25 @@ package tools
 import (
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 )
 
-// DebugJ pretty print structures
-func DebugJ(v interface{}, echo bool, px, inde string) string {
-	b, err := json.MarshalIndent(v, px, inde)
-	if err != nil {
-		fmt.Println(err)
-		return ""
+func ShowJson(v interface{}, echos ...bool) string {
+	echo := true
+	if len(echos) > 0 {
+		echo = echos[0]
 	}
 
-	if echo {
-		fmt.Printf(px+"%s\n", string(b))
-		return ""
+	b, err := json.MarshalIndent(v, "", "  ")
+
+	if err == nil {
+		if echo {
+			fmt.Println(string(b))
+			return ""
+		}
+
+		return string(b)
 	}
 
-	return string(b)
-}
-
-// DebugB print response body
-func DebugB(r *http.Response) {
-	b, _ := io.ReadAll(r.Body)
-	fmt.Println(string(b))
+	fmt.Println(err)
+	return ""
 }
