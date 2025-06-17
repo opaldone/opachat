@@ -51,7 +51,7 @@ if [[ -e $binka ]]; then
     cd $bin
     # GORACE="log_path=$bin/rc halt_on_error=1" $binka
     # $binka
-    $binka > /mnt/terik/a_my/temp/ch.log 2>&1 &
+    $binka > l.log 2>&1 &
 else
     echo -e "$binka not found\n"
 fi
