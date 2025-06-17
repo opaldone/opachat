@@ -6,3 +6,4 @@ src/golang.org
 src/google.golang.org
 src/opachat/go.mod
 src/opachat/go.sum
+l.log

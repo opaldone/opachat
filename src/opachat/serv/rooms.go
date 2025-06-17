@@ -150,16 +150,6 @@ func chatMessage(cl *Client, msg string) {
 	roo.chatMessage(cl, msg)
 }
 
-func GetOsaFromRoom(uqroom_in string) *OsaType {
-	roo := getRoom(uqroom_in)
-
-	if roo == nil {
-		return nil
-	}
-
-	return roo.getOsa()
-}
-
 func GetShowRooms() (ret RoomsDebugType) {
 	lockRooms.RLock()
 	defer lockRooms.RUnlock()
