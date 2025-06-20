@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"sort"
 	"sync"
 	"syscall"
 	"time"
@@ -588,6 +589,10 @@ func (r *Room) getInfo() (ret RoomDebType) {
 	for _, t := range r.talkers {
 		ret.Talkers = append(ret.Talkers, t.getInfo())
 	}
+
+	sort.Slice(ret.Talkers, func(i, j int) bool {
+		return ret.Talkers[i].Nik < ret.Talkers[j].Nik
+	})
 
 	osa := r.getOsa()
 	if osa != nil {

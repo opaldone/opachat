@@ -65,24 +65,33 @@
                       <td>{{ .Nik }}</td>
                       <td>{{ .Uquser }}</td>
                       <td>{{ .StrID }}</td>
-                      <td>
+                      <td class="td-cen">
                         {{ if .Recording }}
-                          {{ .Recording }}
+                          <span>+</span>
+                        {{ else }}
+                          <span class="neg">-</span>
                         {{ end }}
                       </td>
-                      <td>
+                      <td class="td-cen">
                         {{ if .Screen }}
-                          {{ .Screen }}
+                          <span>+</span>
+                        {{ else }}
+                          <span class="neg">-</span>
                         {{ end }}
                       </td>
-                      <td>
+                      <td class="td-cen">
                         {{ if .Sound }}
-                          {{ .Sound }}
+                          <span>+</span>
+                        {{ else }}
+                          <span class="neg">-</span>
                         {{ end }}
                       </td>
-                      <td>
+                      <td class="td-cen">
                         {{ if .Video }}
-                          {{ .Video }}
+                          {{/* .Video */}}
+                          <span>+</span>
+                        {{ else }}
+                          <span class="neg">-</span>
                         {{ end }}
                       </td>
                       <td>{{ .Ke }}</td>
