@@ -52,9 +52,10 @@ DISPLAY=:$SERVERNUM \
 	google-chrome \
     --incognito \
     --start-maximized \
-    -no-default-browser-check \
+    --no-default-browser-check \
 	--disable-gpu \
 	--disable-software-rasterizer \
+    --disable-search-engine-choice-screen \
 	--autoplay-policy=no-user-gesture-required \
 	--kiosk $kiosk_url >/dev/null 2>&1 &
 
