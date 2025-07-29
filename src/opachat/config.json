@@ -4,7 +4,11 @@
   "port": 8080,
   "static": "static",
   "acme": false,
-  "acmehost": "opaldone.click",
+  "acmehost": [
+    "opaldone.click",
+    "206.189.101.23",
+    "www.opaldone.click"
+  ],
   "dirCache": "./certs",
   "crt": "/mnt/terik/a_my/admigo_project/admigo/bin/certs_local/server.crt",
   "key": "/mnt/terik/a_my/admigo_project/admigo/bin/certs_local/server.key",

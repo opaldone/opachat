@@ -12,7 +12,7 @@ type Configuration struct {
 	Port     int                 `json:"port"`
 	Static   string              `json:"static"`
 	Acme     bool                `json:"acme"`
-	Acmehost string              `json:"acmehost"`
+	Acmehost []string            `json:"acmehost"`
 	DirCache string              `json:"dirCache"`
 	Crt      string              `json:"crt,omitempty"`
 	Key      string              `json:"key,omitempty"`
