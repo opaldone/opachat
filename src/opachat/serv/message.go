@@ -1,3 +1,4 @@
+// Package serv
 package serv
 
 import (
@@ -10,7 +11,6 @@ const (
 	OFFER     = "offer"
 	ANSWER    = "answer"
 	WHOCO     = "whoco"
-	ROOMCON   = "roomcon"
 	TCON      = "tcon"
 	AVC       = "avc"
 	AVCD      = "avcd"
