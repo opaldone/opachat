@@ -12,9 +12,9 @@ func init() {
 	rooms = make(map[string]*Room)
 }
 
-func getRoom(uqroom_in string) *Room {
+func getRoom(uqroomIn string) *Room {
 	lockRooms.RLock()
-	roo, exists := rooms[uqroom_in]
+	roo, exists := rooms[uqroomIn]
 	lockRooms.RUnlock()
 
 	if !exists {
@@ -25,19 +25,19 @@ func getRoom(uqroom_in string) *Room {
 }
 
 func getClientRoom(cl *Client) *Room {
-	uqroom_in := cl.uqroom
+	uqroomIn := cl.uqroom
 
-	return getRoom(uqroom_in)
+	return getRoom(uqroomIn)
 }
 
-func CheckKeRoom(uqroom_in string, ke_in string) bool {
-	roo := getRoom(uqroom_in)
+func CheckKeRoom(uqroomIn string, keIn string) bool {
+	roo := getRoom(uqroomIn)
 
 	if roo == nil {
 		return false
 	}
 
-	return roo.checkKe(ke_in)
+	return roo.checkKe(keIn)
 }
 
 func createRoom(uqroom string, perroom int) {
@@ -78,8 +78,8 @@ func removeRoom(uqroom string) {
 	lockRooms.Unlock()
 }
 
-func whoConnectedRoom(uqroom_in string, me string) (res string) {
-	roo := getRoom(uqroom_in)
+func whoConnectedRoom(uqroomIn string, me string) (res string) {
+	roo := getRoom(uqroomIn)
 
 	if roo == nil {
 		return

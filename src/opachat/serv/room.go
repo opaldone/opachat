@@ -348,6 +348,10 @@ func (r *Room) notifTalkerAnotherRecord(c *Client) {
 }
 
 func (r *Room) notifTalkersChangedOpts(me *Client) {
+	if me.talker == nil {
+		return
+	}
+
 	r.lockRoom.RLock()
 	defer r.lockRoom.RUnlock()
 
