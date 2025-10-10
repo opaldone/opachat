@@ -45,7 +45,7 @@ type TalkerDebType struct {
 }
 
 type RoomDebType struct {
-	RoomId         string          `json:"room_id"`
+	RoomID         string          `json:"room_id"`
 	TalkersLen     int             `json:"talkers_len"`
 	TrackLocalsLen int             `json:"trackLocals_len"`
 	KeSaver        string          `json:"keSaver"`
@@ -198,10 +198,10 @@ func (r *Room) canPutTalker(uquser string) bool {
 	r.lockRoom.Unlock()
 
 	r.lockRoom.RLock()
-	len_talkers := len(r.talkers)
+	lentalkers := len(r.talkers)
 	r.lockRoom.RUnlock()
 
-	if r.perRoom <= len_talkers {
+	if r.perRoom <= lentalkers {
 		return false
 	}
 
@@ -242,10 +242,10 @@ func (r *Room) removeTalker(idTalker string) {
 	r.lockRoom.Unlock()
 
 	r.lockRoom.RLock()
-	len_talkers := len(r.talkers)
+	lentalkers := len(r.talkers)
 	r.lockRoom.RUnlock()
 
-	if len_talkers == 0 {
+	if lentalkers == 0 {
 		r.removeMe(r.id)
 	}
 }
@@ -416,7 +416,7 @@ func (r *Room) chatMessage(me *Client, msg string) {
 	}
 }
 
-func (r *Room) checkKe(ke_in string) bool {
+func (r *Room) checkKe(kein string) bool {
 	r.lockRoom.RLock()
 	defer r.lockRoom.RUnlock()
 
@@ -424,7 +424,7 @@ func (r *Room) checkKe(ke_in string) bool {
 		return false
 	}
 
-	if r.keSaver != ke_in {
+	if r.keSaver != kein {
 		return false
 	}
 
@@ -456,18 +456,18 @@ func (r *Room) monitorRecording() {
 		return err == nil
 	}
 
-	osa_in := r.getOsa()
+	osain := r.getOsa()
 	pids := []int{}
 
 	for range ticker.C {
-		if osa_in != nil && len(pids) == 0 {
-			pids = append(pids, osa_in.Pxv)
-			pids = append(pids, osa_in.Pff)
-			pids = append(pids, osa_in.Pgoo)
+		if osain != nil && len(pids) == 0 {
+			pids = append(pids, osain.Pxv)
+			pids = append(pids, osain.Pff)
+			pids = append(pids, osain.Pgoo)
 		}
 
-		if osa_in == nil {
-			osa_in = r.getOsa()
+		if osain == nil {
+			osain = r.getOsa()
 		}
 
 		if len(pids) == 0 {
@@ -479,9 +479,9 @@ func (r *Room) monitorRecording() {
 				continue
 			}
 
-			wr_cl := r.getWriter()
-			if wr_cl != nil {
-				r.stopRecord(wr_cl)
+			wrcl := r.getWriter()
+			if wrcl != nil {
+				r.stopRecord(wrcl)
 				return
 			}
 		}
@@ -490,10 +490,10 @@ func (r *Room) monitorRecording() {
 
 func (r *Room) startRecord(c *Client) {
 	r.lockRoom.RLock()
-	empty_ke := len(r.keSaver) == 0
+	emptyke := len(r.keSaver) == 0
 	r.lockRoom.RUnlock()
 
-	if empty_ke {
+	if emptyke {
 		startRec(r)
 
 		go r.monitorRecording()
@@ -507,10 +507,10 @@ func (r *Room) startRecord(c *Client) {
 
 func (r *Room) stopRecord(c *Client) {
 	r.lockRoom.RLock()
-	empty_ke := len(r.keSaver) == 0
+	emptyke := len(r.keSaver) == 0
 	r.lockRoom.RUnlock()
 
-	if empty_ke {
+	if emptyke {
 		return
 	}
 
@@ -524,21 +524,21 @@ func (r *Room) getPathOsa() (string, string) {
 	rid := r.id
 	r.lockRoom.RUnlock()
 
-	js_file := fmt.Sprintf("./prcs/pr_%s.json", rid)
+	jsfile := fmt.Sprintf("./prcs/pr_%s.json", rid)
 
-	return rid, js_file
+	return rid, jsfile
 }
 
 func (r *Room) setKeRecorder() (string, string, string) {
-	ke_new := tools.CreateUUID()
+	kenew := tools.CreateUUID()
 
 	r.lockRoom.Lock()
-	r.keSaver = ke_new
+	r.keSaver = kenew
 	r.lockRoom.Unlock()
 
-	rid, js_file := r.getPathOsa()
+	rid, jsfile := r.getPathOsa()
 
-	return rid, ke_new, js_file
+	return rid, kenew, jsfile
 }
 
 func (r *Room) clearKeSaver() {
@@ -548,18 +548,18 @@ func (r *Room) clearKeSaver() {
 }
 
 func (r *Room) getOsa() *OsaType {
-	_, js_file := r.getPathOsa()
+	_, jsfile := r.getPathOsa()
 
-	os_json_str, err := os.Open(js_file)
+	osjsonstr, err := os.Open(jsfile)
 	if err != nil {
 		return nil
 	}
 
-	decoder := json.NewDecoder(os_json_str)
+	decoder := json.NewDecoder(osjsonstr)
 	ous := &OsaType{}
 	err = decoder.Decode(ous)
 	if err != nil {
-		tools.Danger(fmt.Sprintf("Cannot parse %s", js_file), err)
+		tools.Danger(fmt.Sprintf("Cannot parse %s", jsfile), err)
 		return nil
 	}
 
@@ -567,13 +567,13 @@ func (r *Room) getOsa() *OsaType {
 }
 
 func (r *Room) removeRecord() {
-	_, js_file := r.getPathOsa()
+	_, jsfile := r.getPathOsa()
 
-	if len(js_file) == 0 {
+	if len(jsfile) == 0 {
 		return
 	}
 
-	err := os.Remove(js_file)
+	err := os.Remove(jsfile)
 	if err != nil {
 		tools.Danger("Removing js file", err)
 	}
@@ -585,7 +585,7 @@ func (r *Room) getInfo() (ret RoomDebType) {
 	r.lockRoom.RLock()
 	defer r.lockRoom.RUnlock()
 
-	ret.RoomId = r.id
+	ret.RoomID = r.id
 	ret.TalkersLen = len(r.talkers)
 	ret.TrackLocalsLen = len(r.trackLocals)
 	ret.KeSaver = r.keSaver

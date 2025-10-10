@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func ShowJson(v interface{}, echos ...bool) string {
+func ShowJSON(v any, echos ...bool) string {
 	echo := true
 	if len(echos) > 0 {
 		echo = echos[0]

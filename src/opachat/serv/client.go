@@ -258,7 +258,7 @@ func (c *Client) writePump() {
 			w.Write(message)
 
 			n := len(c.send)
-			for i := 0; i < n; i++ {
+			for range n {
 				w.Write(newline)
 				w.Write(<-c.send)
 			}
@@ -287,14 +287,14 @@ func (c *Client) stopClient() {
 }
 
 // ServeWs handles websocket requests from the peer.
-func ServeWs(roomuq_in string, useruq_in string,
-	perroom int, nik_in string, ke_in string,
-	hub_in *Hub, w_in http.ResponseWriter, r_in *http.Request,
+func ServeWs(roomuqin string, useruqin string,
+	perroom int, nikin string, kein string,
+	hubin *Hub, win http.ResponseWriter, rin *http.Request,
 ) {
-	start_virt := len(ke_in) > 0
+	startvirt := len(kein) > 0
 
-	if start_virt && !CheckKeRoom(roomuq_in, ke_in) {
-		tools.Log("ServeWs", "virt was not checked ke_in =", ke_in)
+	if startvirt && !CheckKeRoom(roomuqin, kein) {
+		tools.Log("ServeWs", "virt was not checked ke_in =", kein)
 		return
 	}
 
@@ -302,24 +302,24 @@ func ServeWs(roomuq_in string, useruq_in string,
 		return true
 	}
 
-	conn_in, err := upgrader.Upgrade(w_in, r_in, nil)
+	connin, err := upgrader.Upgrade(win, rin, nil)
 	if err != nil {
 		tools.Danger("ServeWs", err)
 		return
 	}
 
 	nc := &Client{
-		uqroom:    roomuq_in,
-		uquser:    useruq_in,
-		nik:       nik_in,
-		ke:        ke_in,
+		uqroom:    roomuqin,
+		uquser:    useruqin,
+		nik:       nikin,
+		ke:        kein,
 		recording: false,
-		hub:       hub_in,
-		conn:      conn_in,
+		hub:       hubin,
+		conn:      connin,
 		send:      make(chan []byte, 256),
 	}
 
-	if !start_virt {
+	if !startvirt {
 		createRoom(nc.uqroom, perroom)
 	}
 

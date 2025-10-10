@@ -16,9 +16,9 @@ func getFm() (fm template.FuncMap) {
 		"safe": func(s string) template.HTML {
 			return template.HTML(s)
 		},
-		"dd": func(v interface{}) template.HTML {
+		"dd": func(v any) template.HTML {
 			return template.HTML(
-				tools.ShowJson(v, false),
+				tools.ShowJSON(v, false),
 			)
 		},
 	}
@@ -42,7 +42,7 @@ func getSiteTemplates(filenames []string, fm template.FuncMap) (tmpl *template.T
 	return
 }
 
-func GenerateHTMLEmp(w http.ResponseWriter, r *http.Request, data interface{}, filenames ...string) {
+func GenerateHTMLEmp(w http.ResponseWriter, r *http.Request, data any, filenames ...string) {
 	funcMap := getFm()
 	filenames = append(filenames, "lays/layout")
 

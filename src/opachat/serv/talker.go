@@ -26,10 +26,10 @@ type Talker struct {
 }
 
 // NewTalker creates a new talker
-func NewTalker(c_in *Client, room_in *Room, av *AVConfig) *Talker {
+func NewTalker(cin *Client, roomin *Room, av *AVConfig) *Talker {
 	newTalker := &Talker{
-		wsc:  c_in,
-		room: room_in,
+		wsc:  cin,
+		room: roomin,
 	}
 
 	newTalker.sound = av.Sound
@@ -41,16 +41,16 @@ func NewTalker(c_in *Client, room_in *Room, av *AVConfig) *Talker {
 }
 
 func (t *Talker) getPeerConnectionConfig() (peerConnectionConfig webrtc.Configuration) {
-	urls_out, username_out, credential_out := tools.GetIceList()
+	urlsout, usernameout, credentialout := tools.GetIceList()
 
 	peerConnectionConfig = webrtc.Configuration{
 		ICEServers: []webrtc.ICEServer{
 			{
 				// URLs: []string{"stun:stun.l.google.com:19302"},
 
-				URLs:       urls_out,
-				Username:   username_out,
-				Credential: credential_out,
+				URLs:       urlsout,
+				Username:   usernameout,
+				Credential: credentialout,
 			},
 		},
 	}
@@ -186,11 +186,11 @@ func (t *Talker) connect() {
 
 	i.Add(intervalPliFactory)
 
-	peer_conf := t.getPeerConnectionConfig()
+	peerconf := t.getPeerConnectionConfig()
 
 	t.pc, err = webrtc.
 		NewAPI(webrtc.WithMediaEngine(m), webrtc.WithInterceptorRegistry(i)).
-		NewPeerConnection(peer_conf)
+		NewPeerConnection(peerconf)
 	if err != nil {
 		tools.Danger("New peer connection", err)
 	}
