@@ -27,17 +27,21 @@ type Talker struct {
 
 // NewTalker creates a new talker
 func NewTalker(cin *Client, roomin *Room, av *AVConfig) *Talker {
-	newTalker := &Talker{
+	nt := &Talker{
 		wsc:  cin,
 		room: roomin,
 	}
 
-	newTalker.sound = av.Sound
-	newTalker.video = av.Video
+	if cin.invis {
+		nt.strID = cin.uquser
+	}
 
-	newTalker.connect()
+	nt.sound = av.Sound
+	nt.video = av.Video
 
-	return newTalker
+	nt.connect()
+
+	return nt
 }
 
 func (t *Talker) getPeerConnectionConfig() (peerConnectionConfig webrtc.Configuration) {
@@ -117,7 +121,7 @@ func (t *Talker) iceCandidate(i *webrtc.ICECandidate) {
 		return
 	}
 
-	t.wsc.sendMeCandidate(string(candidateString))
+	t.wsc.sendMe(string(candidateString), CANDIDATE)
 }
 
 func (t *Talker) connectionStateChange(p webrtc.PeerConnectionState) {
@@ -232,6 +236,7 @@ func (t *Talker) getInfo() (ret TalkerDebType) {
 	ret.Screen = t.wsc.screen
 	ret.Sound = t.sound
 	ret.Video = t.video
+	ret.Invis = t.wsc.invis
 	ret.Ke = t.wsc.ke
 
 	for _, s := range t.pc.GetStats() {

@@ -34,6 +34,7 @@ type Client struct {
 	uqroom     string
 	uquser     string
 	nik        string
+	invis      bool
 	ke         string
 	recording  bool
 	screen     bool
@@ -44,126 +45,67 @@ type Client struct {
 	lockClient sync.RWMutex
 }
 
-func (c *Client) sendMeCandidate(cand string) {
-	if len(cand) == 0 {
-		return
-	}
-	msg := new(Message)
-	msg.Tp = CANDIDATE
-	msg.Content = cand
-	bts, _ := json.Marshal(msg)
-	c.send <- bts
-}
-
-func (c *Client) sendMeOffer(of string) {
-	msg := new(Message)
-	msg.Tp = OFFER
-	msg.Content = of
-	bts, _ := json.Marshal(msg)
-	c.send <- bts
-}
-
-func (c *Client) sendMeWhoConnected() {
-	str := whoConnectedRoom(c.uqroom, c.uquser)
-
+func (c *Client) sendMe(str string, co string) {
 	if len(str) == 0 {
 		return
 	}
 
 	msg := new(Message)
-	msg.Tp = TCON
+	msg.Tp = co
 	msg.Content = str
 	bts, _ := json.Marshal(msg)
 	c.send <- bts
 }
 
-func (c *Client) sendMeAvcChanged(str string) {
+func (c *Client) sendMeWhoConnected(onlyInvis bool) {
+	str := whoConnectedRoom(c.uqroom, c.uquser, onlyInvis)
+
 	if len(str) == 0 {
 		return
 	}
 
-	msg := new(Message)
-	msg.Tp = AVCD
-	msg.Content = str
-	bts, _ := json.Marshal(msg)
-	c.send <- bts
+	c.sendMe(str, TCON)
 }
 
-func (c *Client) sendMeScreenChanged(str string) {
-	if len(str) == 0 {
+func (c *Client) stopClient() {
+	talkerStop(c)
+
+	c.hub.unregister <- c
+	c.conn.Close()
+
+	if c.talker == nil {
 		return
 	}
 
-	msg := new(Message)
-	msg.Tp = SCRECD
-	msg.Content = str
-	bts, _ := json.Marshal(msg)
-	c.send <- bts
-}
-
-func (c *Client) sendMeStartedRecord(str string) {
-	if len(str) == 0 {
-		return
-	}
-
-	msg := new(Message)
-	msg.Tp = BREC
-	msg.Content = str
-	bts, _ := json.Marshal(msg)
-	c.send <- bts
-}
-
-func (c *Client) sendMeStoppedRecord(str string) {
-	if len(str) == 0 {
-		return
-	}
-
-	msg := new(Message)
-	msg.Tp = EREC
-	msg.Content = str
-	bts, _ := json.Marshal(msg)
-	c.send <- bts
-}
-
-func (c *Client) sendMeAnotherRecord(str string) {
-	if len(str) == 0 {
-		return
-	}
-
-	msg := new(Message)
-	msg.Tp = AREC
-	msg.Content = str
-	bts, _ := json.Marshal(msg)
-	c.send <- bts
-}
-
-func (c *Client) sendMeChat(str string) {
-	if len(str) == 0 {
-		return
-	}
-
-	msg := new(Message)
-	msg.Tp = CHAT
-	msg.Content = str
-	bts, _ := json.Marshal(msg)
-	c.send <- bts
+	c.talker.stopTalker()
 }
 
 func (c *Client) processMessage(msg *Message) {
 	switch msg.Tp {
 	case JOINROOM:
 		av := decAV(msg.Content)
+
+		c.invis = av.Invis
+
 		t := joinRoom(c, av)
+
 		if t == nil {
 			return
 		}
+
 		c.talker = t
+
+		if c.invis {
+			talkerHi(c)
+		}
 	case CANDIDATE:
 		c.talker.setCandidate(msg.Content)
 	case ANSWER:
 		c.talker.setAnswer(msg.Content)
 	case WHOCO:
-		c.sendMeWhoConnected()
+		c.sendMeWhoConnected(false)
+	case WHOCOINV:
+		c.sendMeWhoConnected(true)
 	case AVC:
 		av := decAV(msg.Content)
 
@@ -273,17 +215,6 @@ func (c *Client) writePump() {
 			}
 		}
 	}
-}
-
-func (c *Client) stopClient() {
-	c.hub.unregister <- c
-	c.conn.Close()
-
-	if c.talker == nil {
-		return
-	}
-
-	c.talker.stopTalker()
 }
 
 // ServeWs handles websocket requests from the peer.

@@ -78,16 +78,36 @@ func removeRoom(uqroom string) {
 	lockRooms.Unlock()
 }
 
-func whoConnectedRoom(uqroomIn string, me string) (res string) {
+func whoConnectedRoom(uqroomIn string, me string, onlyInvis bool) (res string) {
 	roo := getRoom(uqroomIn)
 
 	if roo == nil {
 		return
 	}
 
-	res = roo.getConnectedList(me)
+	res = roo.getConnectedList(me, onlyInvis)
 
 	return
+}
+
+func talkerHi(me *Client) {
+	roo := getClientRoom(me)
+
+	if roo == nil {
+		return
+	}
+
+	roo.notifTalkersHi(me)
+}
+
+func talkerStop(me *Client) {
+	roo := getClientRoom(me)
+
+	if roo == nil {
+		return
+	}
+
+	roo.notifTalkersStop(me)
 }
 
 func talkerChangedOpts(me *Client) {

@@ -51,6 +51,7 @@
                     <th style="width:20%">Nik</th>
                     <th style="width:20%">Uquser</th>
                     <th style="width:20%">StrID</th>
+                    <th style="width:2%">Invisible</th>
                     <th style="width:2%">Recording</th>
                     <th style="width:2%">Screen</th>
                     <th style="width:2%">Sound</th>
@@ -65,6 +66,13 @@
                       <td>{{ .Nik }}</td>
                       <td>{{ .Uquser }}</td>
                       <td>{{ .StrID }}</td>
+                      <td class="td-cen">
+                        {{ if .Invis }}
+                          <span>+</span>
+                        {{ else }}
+                          <span class="neg">-</span>
+                        {{ end }}
+                      </td>
                       <td class="td-cen">
                         {{ if .Recording }}
                           <span>+</span>

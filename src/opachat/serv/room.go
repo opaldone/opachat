@@ -40,6 +40,7 @@ type TalkerDebType struct {
 	Screen    bool     `json:"screen"`
 	Sound     bool     `json:"sound"`
 	Video     bool     `json:"video"`
+	Invis     bool     `json:"invis"`
 	Ke        string   `json:"ke"`
 	Ices      []string `json:"ices"`
 }
@@ -168,7 +169,7 @@ func (r *Room) signalPeerConnections() {
 				return true
 			}
 
-			talker.wsc.sendMeOffer(string(offerString))
+			talker.wsc.sendMe(string(offerString), OFFER)
 		}
 
 		return
@@ -250,7 +251,7 @@ func (r *Room) removeTalker(idTalker string) {
 	}
 }
 
-func (r *Room) getConnectedList(me string) (res string) {
+func (r *Room) getConnectedList(me string, onlyInvis bool) (res string) {
 	r.lockRoom.RLock()
 	defer r.lockRoom.RUnlock()
 
@@ -262,8 +263,12 @@ func (r *Room) getConnectedList(me string) (res string) {
 		if len(talker.wsc.ke) > 0 {
 			continue
 		}
+		if onlyInvis && !talker.wsc.invis {
+			continue
+		}
 
 		lis[talker.strID] = WConnected{
+			StrID:     talker.strID,
 			Uquser:    talker.wsc.uquser,
 			Nik:       talker.wsc.nik,
 			Mic:       talker.sound,
@@ -278,6 +283,55 @@ func (r *Room) getConnectedList(me string) (res string) {
 	res = string(bont)
 
 	return
+}
+
+func (r *Room) notifTalkersHi(me *Client) {
+	r.lockRoom.RLock()
+	defer r.lockRoom.RUnlock()
+
+	lis := make(map[string]WConnected)
+
+	lis[me.talker.strID] = WConnected{
+		StrID:     me.talker.strID,
+		Uquser:    me.talker.wsc.uquser,
+		Nik:       me.talker.wsc.nik,
+		Mic:       me.talker.sound,
+		Cam:       me.talker.video,
+		Recording: me.talker.wsc.recording,
+		ScreenOn:  me.talker.wsc.screen,
+	}
+
+	str := ListConnected{List: lis}
+	bont, _ := json.Marshal(str)
+	res := string(bont)
+
+	for _, talker := range r.talkers {
+		if talker.wsc.uquser == me.uquser {
+			continue
+		}
+
+		talker.wsc.sendMe(res, TCON)
+	}
+}
+
+func (r *Room) notifTalkersStop(me *Client) {
+	r.lockRoom.RLock()
+	defer r.lockRoom.RUnlock()
+
+	wc := WConnected{
+		StrID: me.talker.strID,
+	}
+
+	bont, _ := json.Marshal(wc)
+	res := string(bont)
+
+	for _, talker := range r.talkers {
+		if talker.wsc.uquser == me.uquser {
+			continue
+		}
+
+		talker.wsc.sendMe(res, TALKERST)
+	}
 }
 
 func (r *Room) notifTalkersStartedRecord(me *Client) {
@@ -298,7 +352,7 @@ func (r *Room) notifTalkersStartedRecord(me *Client) {
 			continue
 		}
 
-		talker.wsc.sendMeStartedRecord(res)
+		talker.wsc.sendMe(res, BREC)
 	}
 }
 
@@ -318,7 +372,7 @@ func (r *Room) notifTalkersStoppedRecord(me *Client) {
 	res := string(bont)
 
 	for _, talker := range r.talkers {
-		talker.wsc.sendMeStoppedRecord(res)
+		talker.wsc.sendMe(res, EREC)
 	}
 }
 
@@ -341,7 +395,7 @@ func (r *Room) notifTalkerAnotherRecord(c *Client) {
 		bont, _ := json.Marshal(wc)
 		res := string(bont)
 
-		c.sendMeAnotherRecord(res)
+		c.sendMe(res, AREC)
 
 		return
 	}
@@ -370,7 +424,7 @@ func (r *Room) notifTalkersChangedOpts(me *Client) {
 			continue
 		}
 
-		talker.wsc.sendMeAvcChanged(res)
+		talker.wsc.sendMe(res, AVCD)
 	}
 }
 
@@ -394,7 +448,7 @@ func (r *Room) notifTalkersChangedScreen(me *Client, sv *AVConfig) {
 			continue
 		}
 
-		talker.wsc.sendMeScreenChanged(res)
+		talker.wsc.sendMe(res, SCRECD)
 	}
 }
 
@@ -412,7 +466,7 @@ func (r *Room) chatMessage(me *Client, msg string) {
 	res := string(bont)
 
 	for _, talker := range r.talkers {
-		talker.wsc.sendMeChat(res)
+		talker.wsc.sendMe(res, CHAT)
 	}
 }
 
