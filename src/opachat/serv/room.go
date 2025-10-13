@@ -40,12 +40,13 @@ type TalkerDebType struct {
 	Screen    bool     `json:"screen"`
 	Sound     bool     `json:"sound"`
 	Video     bool     `json:"video"`
+	Invis     bool     `json:"invis"`
 	Ke        string   `json:"ke"`
 	Ices      []string `json:"ices"`
 }
 
 type RoomDebType struct {
-	RoomId         string          `json:"room_id"`
+	RoomID         string          `json:"room_id"`
 	TalkersLen     int             `json:"talkers_len"`
 	TrackLocalsLen int             `json:"trackLocals_len"`
 	KeSaver        string          `json:"keSaver"`
@@ -168,7 +169,7 @@ func (r *Room) signalPeerConnections() {
 				return true
 			}
 
-			talker.wsc.sendMeOffer(string(offerString))
+			talker.wsc.sendMe(string(offerString), OFFER)
 		}
 
 		return
@@ -198,10 +199,10 @@ func (r *Room) canPutTalker(uquser string) bool {
 	r.lockRoom.Unlock()
 
 	r.lockRoom.RLock()
-	len_talkers := len(r.talkers)
+	lentalkers := len(r.talkers)
 	r.lockRoom.RUnlock()
 
-	if r.perRoom <= len_talkers {
+	if r.perRoom <= lentalkers {
 		return false
 	}
 
@@ -242,15 +243,15 @@ func (r *Room) removeTalker(idTalker string) {
 	r.lockRoom.Unlock()
 
 	r.lockRoom.RLock()
-	len_talkers := len(r.talkers)
+	lentalkers := len(r.talkers)
 	r.lockRoom.RUnlock()
 
-	if len_talkers == 0 {
+	if lentalkers == 0 {
 		r.removeMe(r.id)
 	}
 }
 
-func (r *Room) getConnectedList(me string) (res string) {
+func (r *Room) getConnectedList(me string, onlyInvis bool) (res string) {
 	r.lockRoom.RLock()
 	defer r.lockRoom.RUnlock()
 
@@ -262,8 +263,12 @@ func (r *Room) getConnectedList(me string) (res string) {
 		if len(talker.wsc.ke) > 0 {
 			continue
 		}
+		if onlyInvis && !talker.wsc.invis {
+			continue
+		}
 
 		lis[talker.strID] = WConnected{
+			StrID:     talker.strID,
 			Uquser:    talker.wsc.uquser,
 			Nik:       talker.wsc.nik,
 			Mic:       talker.sound,
@@ -278,6 +283,55 @@ func (r *Room) getConnectedList(me string) (res string) {
 	res = string(bont)
 
 	return
+}
+
+func (r *Room) notifTalkersHi(me *Client) {
+	r.lockRoom.RLock()
+	defer r.lockRoom.RUnlock()
+
+	lis := make(map[string]WConnected)
+
+	lis[me.talker.strID] = WConnected{
+		StrID:     me.talker.strID,
+		Uquser:    me.talker.wsc.uquser,
+		Nik:       me.talker.wsc.nik,
+		Mic:       me.talker.sound,
+		Cam:       me.talker.video,
+		Recording: me.talker.wsc.recording,
+		ScreenOn:  me.talker.wsc.screen,
+	}
+
+	str := ListConnected{List: lis}
+	bont, _ := json.Marshal(str)
+	res := string(bont)
+
+	for _, talker := range r.talkers {
+		if talker.wsc.uquser == me.uquser {
+			continue
+		}
+
+		talker.wsc.sendMe(res, TCON)
+	}
+}
+
+func (r *Room) notifTalkersStop(me *Client) {
+	r.lockRoom.RLock()
+	defer r.lockRoom.RUnlock()
+
+	wc := WConnected{
+		StrID: me.talker.strID,
+	}
+
+	bont, _ := json.Marshal(wc)
+	res := string(bont)
+
+	for _, talker := range r.talkers {
+		if talker.wsc.uquser == me.uquser {
+			continue
+		}
+
+		talker.wsc.sendMe(res, TALKERST)
+	}
 }
 
 func (r *Room) notifTalkersStartedRecord(me *Client) {
@@ -298,7 +352,7 @@ func (r *Room) notifTalkersStartedRecord(me *Client) {
 			continue
 		}
 
-		talker.wsc.sendMeStartedRecord(res)
+		talker.wsc.sendMe(res, BREC)
 	}
 }
 
@@ -318,7 +372,7 @@ func (r *Room) notifTalkersStoppedRecord(me *Client) {
 	res := string(bont)
 
 	for _, talker := range r.talkers {
-		talker.wsc.sendMeStoppedRecord(res)
+		talker.wsc.sendMe(res, EREC)
 	}
 }
 
@@ -341,7 +395,7 @@ func (r *Room) notifTalkerAnotherRecord(c *Client) {
 		bont, _ := json.Marshal(wc)
 		res := string(bont)
 
-		c.sendMeAnotherRecord(res)
+		c.sendMe(res, AREC)
 
 		return
 	}
@@ -370,7 +424,7 @@ func (r *Room) notifTalkersChangedOpts(me *Client) {
 			continue
 		}
 
-		talker.wsc.sendMeAvcChanged(res)
+		talker.wsc.sendMe(res, AVCD)
 	}
 }
 
@@ -394,7 +448,7 @@ func (r *Room) notifTalkersChangedScreen(me *Client, sv *AVConfig) {
 			continue
 		}
 
-		talker.wsc.sendMeScreenChanged(res)
+		talker.wsc.sendMe(res, SCRECD)
 	}
 }
 
@@ -412,11 +466,11 @@ func (r *Room) chatMessage(me *Client, msg string) {
 	res := string(bont)
 
 	for _, talker := range r.talkers {
-		talker.wsc.sendMeChat(res)
+		talker.wsc.sendMe(res, CHAT)
 	}
 }
 
-func (r *Room) checkKe(ke_in string) bool {
+func (r *Room) checkKe(kein string) bool {
 	r.lockRoom.RLock()
 	defer r.lockRoom.RUnlock()
 
@@ -424,7 +478,7 @@ func (r *Room) checkKe(ke_in string) bool {
 		return false
 	}
 
-	if r.keSaver != ke_in {
+	if r.keSaver != kein {
 		return false
 	}
 
@@ -456,18 +510,18 @@ func (r *Room) monitorRecording() {
 		return err == nil
 	}
 
-	osa_in := r.getOsa()
+	osain := r.getOsa()
 	pids := []int{}
 
 	for range ticker.C {
-		if osa_in != nil && len(pids) == 0 {
-			pids = append(pids, osa_in.Pxv)
-			pids = append(pids, osa_in.Pff)
-			pids = append(pids, osa_in.Pgoo)
+		if osain != nil && len(pids) == 0 {
+			pids = append(pids, osain.Pxv)
+			pids = append(pids, osain.Pff)
+			pids = append(pids, osain.Pgoo)
 		}
 
-		if osa_in == nil {
-			osa_in = r.getOsa()
+		if osain == nil {
+			osain = r.getOsa()
 		}
 
 		if len(pids) == 0 {
@@ -479,9 +533,9 @@ func (r *Room) monitorRecording() {
 				continue
 			}
 
-			wr_cl := r.getWriter()
-			if wr_cl != nil {
-				r.stopRecord(wr_cl)
+			wrcl := r.getWriter()
+			if wrcl != nil {
+				r.stopRecord(wrcl)
 				return
 			}
 		}
@@ -490,10 +544,10 @@ func (r *Room) monitorRecording() {
 
 func (r *Room) startRecord(c *Client) {
 	r.lockRoom.RLock()
-	empty_ke := len(r.keSaver) == 0
+	emptyke := len(r.keSaver) == 0
 	r.lockRoom.RUnlock()
 
-	if empty_ke {
+	if emptyke {
 		startRec(r)
 
 		go r.monitorRecording()
@@ -507,10 +561,10 @@ func (r *Room) startRecord(c *Client) {
 
 func (r *Room) stopRecord(c *Client) {
 	r.lockRoom.RLock()
-	empty_ke := len(r.keSaver) == 0
+	emptyke := len(r.keSaver) == 0
 	r.lockRoom.RUnlock()
 
-	if empty_ke {
+	if emptyke {
 		return
 	}
 
@@ -524,21 +578,21 @@ func (r *Room) getPathOsa() (string, string) {
 	rid := r.id
 	r.lockRoom.RUnlock()
 
-	js_file := fmt.Sprintf("./prcs/pr_%s.json", rid)
+	jsfile := fmt.Sprintf("./prcs/pr_%s.json", rid)
 
-	return rid, js_file
+	return rid, jsfile
 }
 
 func (r *Room) setKeRecorder() (string, string, string) {
-	ke_new := tools.CreateUUID()
+	kenew := tools.CreateUUID()
 
 	r.lockRoom.Lock()
-	r.keSaver = ke_new
+	r.keSaver = kenew
 	r.lockRoom.Unlock()
 
-	rid, js_file := r.getPathOsa()
+	rid, jsfile := r.getPathOsa()
 
-	return rid, ke_new, js_file
+	return rid, kenew, jsfile
 }
 
 func (r *Room) clearKeSaver() {
@@ -548,18 +602,18 @@ func (r *Room) clearKeSaver() {
 }
 
 func (r *Room) getOsa() *OsaType {
-	_, js_file := r.getPathOsa()
+	_, jsfile := r.getPathOsa()
 
-	os_json_str, err := os.Open(js_file)
+	osjsonstr, err := os.Open(jsfile)
 	if err != nil {
 		return nil
 	}
 
-	decoder := json.NewDecoder(os_json_str)
+	decoder := json.NewDecoder(osjsonstr)
 	ous := &OsaType{}
 	err = decoder.Decode(ous)
 	if err != nil {
-		tools.Danger(fmt.Sprintf("Cannot parse %s", js_file), err)
+		tools.Danger(fmt.Sprintf("Cannot parse %s", jsfile), err)
 		return nil
 	}
 
@@ -567,13 +621,13 @@ func (r *Room) getOsa() *OsaType {
 }
 
 func (r *Room) removeRecord() {
-	_, js_file := r.getPathOsa()
+	_, jsfile := r.getPathOsa()
 
-	if len(js_file) == 0 {
+	if len(jsfile) == 0 {
 		return
 	}
 
-	err := os.Remove(js_file)
+	err := os.Remove(jsfile)
 	if err != nil {
 		tools.Danger("Removing js file", err)
 	}
@@ -585,7 +639,7 @@ func (r *Room) getInfo() (ret RoomDebType) {
 	r.lockRoom.RLock()
 	defer r.lockRoom.RUnlock()
 
-	ret.RoomId = r.id
+	ret.RoomID = r.id
 	ret.TalkersLen = len(r.talkers)
 	ret.TrackLocalsLen = len(r.trackLocals)
 	ret.KeSaver = r.keSaver

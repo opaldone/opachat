@@ -1,3 +1,4 @@
+// Package tools
 package tools
 
 import (
@@ -21,7 +22,7 @@ type Configuration struct {
 }
 
 type ConfRecorder struct {
-	UrlVirt  string `json:"urlVirt"`
+	URLVirt  string `json:"urlVirt"`
 	SoundLib string `json:"soundLib"`
 	IHw      string `json:"iHw"`
 	ScrRes   string `json:"scrRes"`
@@ -30,8 +31,8 @@ type ConfRecorder struct {
 }
 
 var (
-	conf     *Configuration
-	csrf_key string
+	conf    *Configuration
+	csrfkey string
 )
 
 func loadConfig() {
@@ -49,7 +50,7 @@ func loadConfig() {
 }
 
 func setCsrf() {
-	csrf_key = CreateUUID()
+	csrfkey = CreateUUID()
 }
 
 // Env gets configuration
@@ -62,25 +63,25 @@ func Env(reload bool) *Configuration {
 }
 
 func GetIceList() ([]string, string, string) {
-	urls_out := []string{}
-	username_out := ""
-	credential_out := ""
+	urlsout := []string{}
+	usernameout := ""
+	credentialout := ""
 
 	for _, v := range conf.IceList {
-		urls_out = append(urls_out, v["urls"])
+		urlsout = append(urlsout, v["urls"])
 
 		if len(v["username"]) > 0 {
-			username_out = v["username"]
+			usernameout = v["username"]
 		}
 
 		if len(v["credential"]) > 0 {
-			credential_out = v["credential"]
+			credentialout = v["credential"]
 		}
 	}
 
-	return urls_out, username_out, credential_out
+	return urlsout, usernameout, credentialout
 }
 
 func GetKeyCSRF() string {
-	return csrf_key
+	return csrfkey
 }

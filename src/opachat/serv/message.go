@@ -11,6 +11,7 @@ const (
 	OFFER     = "offer"
 	ANSWER    = "answer"
 	WHOCO     = "whoco"
+	WHOCOINV  = "whocoinv"
 	TCON      = "tcon"
 	AVC       = "avc"
 	AVCD      = "avcd"
@@ -21,6 +22,7 @@ const (
 	AREC      = "anotherrecord"
 	RREC      = "remrec"
 	CHAT      = "chat"
+	TALKERST  = "talkerstopped"
 )
 
 // Message define our message object
@@ -32,6 +34,7 @@ type Message struct {
 type AVConfig struct {
 	Sound    bool `json:"sound"`
 	Video    bool `json:"video"`
+	Invis    bool `json:"invis"`
 	ScreenOn bool `json:"screen_on"`
 }
 

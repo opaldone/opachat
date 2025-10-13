@@ -26,31 +26,35 @@ type Talker struct {
 }
 
 // NewTalker creates a new talker
-func NewTalker(c_in *Client, room_in *Room, av *AVConfig) *Talker {
-	newTalker := &Talker{
-		wsc:  c_in,
-		room: room_in,
+func NewTalker(cin *Client, roomin *Room, av *AVConfig) *Talker {
+	nt := &Talker{
+		wsc:  cin,
+		room: roomin,
 	}
 
-	newTalker.sound = av.Sound
-	newTalker.video = av.Video
+	if cin.invis {
+		nt.strID = cin.uquser
+	}
 
-	newTalker.connect()
+	nt.sound = av.Sound
+	nt.video = av.Video
 
-	return newTalker
+	nt.connect()
+
+	return nt
 }
 
 func (t *Talker) getPeerConnectionConfig() (peerConnectionConfig webrtc.Configuration) {
-	urls_out, username_out, credential_out := tools.GetIceList()
+	urlsout, usernameout, credentialout := tools.GetIceList()
 
 	peerConnectionConfig = webrtc.Configuration{
 		ICEServers: []webrtc.ICEServer{
 			{
 				// URLs: []string{"stun:stun.l.google.com:19302"},
 
-				URLs:       urls_out,
-				Username:   username_out,
-				Credential: credential_out,
+				URLs:       urlsout,
+				Username:   usernameout,
+				Credential: credentialout,
 			},
 		},
 	}
@@ -117,7 +121,7 @@ func (t *Talker) iceCandidate(i *webrtc.ICECandidate) {
 		return
 	}
 
-	t.wsc.sendMeCandidate(string(candidateString))
+	t.wsc.sendMe(string(candidateString), CANDIDATE)
 }
 
 func (t *Talker) connectionStateChange(p webrtc.PeerConnectionState) {
@@ -186,11 +190,11 @@ func (t *Talker) connect() {
 
 	i.Add(intervalPliFactory)
 
-	peer_conf := t.getPeerConnectionConfig()
+	peerconf := t.getPeerConnectionConfig()
 
 	t.pc, err = webrtc.
 		NewAPI(webrtc.WithMediaEngine(m), webrtc.WithInterceptorRegistry(i)).
-		NewPeerConnection(peer_conf)
+		NewPeerConnection(peerconf)
 	if err != nil {
 		tools.Danger("New peer connection", err)
 	}
@@ -232,6 +236,7 @@ func (t *Talker) getInfo() (ret TalkerDebType) {
 	ret.Screen = t.wsc.screen
 	ret.Sound = t.sound
 	ret.Video = t.video
+	ret.Invis = t.wsc.invis
 	ret.Ke = t.wsc.ke
 
 	for _, s := range t.pc.GetStats() {

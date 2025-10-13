@@ -15,13 +15,13 @@ func startRec(r *Room) {
 		return
 	}
 
-	rid, rke, js_file := r.setKeRecorder()
+	rid, rke, jsfile := r.setKeRecorder()
 
 	cmd := exec.Command("./scr/s_s",
 		rid,
 		rke,
-		js_file,
-		e.Recorder.UrlVirt,
+		jsfile,
+		e.Recorder.URLVirt,
 		e.Recorder.SoundLib,
 		e.Recorder.IHw,
 		e.Recorder.ScrRes,
