@@ -315,6 +315,10 @@ func (r *Room) notifTalkersHi(me *Client) {
 }
 
 func (r *Room) notifTalkersStop(me *Client) {
+	if me.talker == nil {
+		return
+	}
+
 	r.lockRoom.RLock()
 	defer r.lockRoom.RUnlock()
 
