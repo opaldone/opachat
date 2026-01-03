@@ -1,0 +1,85 @@
+#!/bin/bash
+
+declare room_in=$1
+declare ke_in=$2
+declare js_file=$3
+declare url_virt=$4
+declare sound_lib=$5
+declare i_hw=$6
+declare scr_res=$7
+declare loglev=$8
+declare ff_timeout=$9
+
+function cr_json() {
+    local pxv=$1
+    local pff=$2
+    local pgoo=$3
+    local js_file=$4
+
+    echo "{\"pxv\":${pxv},\"pff\":${pff},\"pgoo\":${pgoo}}">$js_file
+}
+
+declare scr_xv="${scr_res}x24"
+declare kiosk_url="$url_virt/${room_in}/${ke_in}"
+declare file_name="vi_${room_in}_${ke_in}.webm"
+declare video_file="./vid/${file_name}"
+
+declare ef="./sv_logs/ef_${room_in}.err"
+
+declare SERVERNUM=99
+find_free_servernum() {
+    local i=$SERVERNUM
+    while [ -f /tmp/.X$i-lock ]; do
+        i=$(($i + 1))
+    done
+    echo $i
+}
+SERVERNUM=$(find_free_servernum)
+
+declare LISTENTCP="-nolisten tcp"
+declare XVFBARGS="-screen 0 $scr_xv"
+
+Xvfb \
+    :$SERVERNUM \
+    $XVFBARGS \
+    $LISTENTCP >/dev/null 2>&1 &
+
+declare pxv=$!
+
+sleep 1
+
+DISPLAY=:$SERVERNUM \
+	google-chrome \
+    --incognito \
+    --start-maximized \
+    --no-default-browser-check \
+	--disable-gpu \
+	--disable-software-rasterizer \
+    --disable-search-engine-choice-screen \
+	--autoplay-policy=no-user-gesture-required \
+	--kiosk $kiosk_url >/dev/null 2>&1 &
+
+declare pgoo=$!
+
+sleep 3
+
+ffmpeg \
+    -y \
+    -v $loglev \
+    -f x11grab \
+    -draw_mouse 0 \
+    -s $scr_res \
+    -i :$SERVERNUM \
+    -f $sound_lib \
+    -thread_queue_size 4096 \
+    -i $i_hw \
+    -c:a libopus \
+    -c:v libvpx \
+    -t $ff_timeout \
+    -f webm $video_file >/dev/null 2>$ef &
+
+declare pff=$!
+
+cr_json $pxv $pff $pgoo $js_file
+
+exit 0

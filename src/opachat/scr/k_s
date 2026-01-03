@@ -1,0 +1,11 @@
+#!/bin/bash
+
+declare pgoo=$1
+declare pff=$2
+declare pxv=$3
+
+kill $pff >/dev/null 2>&1 &
+kill $pgoo >/dev/null 2>&1 &
+kill $pxv >/dev/null 2>&1 &
+
+exit 0

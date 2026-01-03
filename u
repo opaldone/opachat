@@ -1,0 +1,113 @@
+#!/bin/bash
+
+cd "$(dirname "$(realpath "$0")")"
+
+declare pw=$("pwd")
+declare project=""
+
+if [[ $pw =~ (.*\/)(.*) ]]; then
+    project=${BASH_REMATCH[2]}
+fi
+
+declare src="$pw/src/$project"
+declare bin="$pw/bin"
+
+source ./watch_files
+
+function check_dirs_files() {
+    local -n ari=$1
+
+    for page in "${ari[@]}"
+    do
+        IFS=";" read -r -a arr <<< "${page}"
+
+        declare fde="${arr[1]}"
+        declare dirna="$(dirname "${fde}")"
+
+        if [ ! -e $dirna ]; then
+            echo "[Check dirs files mk] $dirna"
+            mkdir -p $dirna
+        fi
+    done
+}
+
+function copy_folders() {
+    local -n ari=$1
+
+    for page in "${ari[@]}"
+    do
+        IFS=";" read -r -a arr <<< "${page}"
+
+        declare fsr="${arr[0]}"
+        declare fde="${arr[1]}"
+        declare dirna="$(dirname "${fde}")"
+        declare c_files=0
+
+        if [ -e $fde ]; then
+            declare c_files=$(ls -1q $fde | wc -l)
+        fi
+
+        if [[ $c_files -gt 0 ]]; then
+            continue
+        fi
+
+        declare out_mk=$(mkdir -pv "$fde")
+        if [[ ! -z $out_mk ]]; then
+            echo "[Copy folders mk] $fde"
+        fi
+
+        declare out_cp=$(cp -rv "$fsr" "$dirna")
+        if [[ ! -z $out_cp ]]; then
+            echo "[Copy folders cp] $fsr"
+        fi
+    done
+}
+
+function copira() {
+    local -n acp=$1
+
+    declare some=""
+
+    for page in "${acp[@]}"
+    do
+        IFS=";" read -r -a arr <<< "${page}"
+
+        declare fos="${arr[0]}"
+        declare fot="${arr[1]}"
+
+        declare out=$(cp -uv "$fos" "$fot")
+
+        if [[ ! -z $out ]]; then
+            declare bn=$(basename "$fos")
+
+            if [[ ! -z $some ]]; then
+                some="${some}"$'\n'
+            fi
+
+            some="${some}${bn}"
+        fi
+    done
+
+    if [[ ! -z $some ]]; then
+        echo "$some"
+    fi
+}
+
+echo -en "\033]0;$TTL\a"
+
+clear
+
+if [ ! -z ${E_FOLDERS+x} ]; then
+    check_dirs_files E_FOLDERS
+fi
+
+copy_folders C_FOLDERS
+check_dirs_files W_FILES
+
+while true;
+do
+    copira W_FILES
+    sleep 1
+done
+
+exit 0

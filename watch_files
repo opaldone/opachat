@@ -1,0 +1,28 @@
+#!/bin/bash
+
+TTL="opachat"
+
+E_FOLDERS=(
+    "vid;$bin/vid/*"
+    "prcs;$bin/prcs/*"
+    "sv_logs;$bin/sv_logs/*"
+)
+
+C_FOLDERS=(
+    "$src/static/images;$bin/static/images"
+)
+
+W_FILES=(
+# json
+    "$src/config.json;$bin/config.json"
+# html
+    "$src/templates/lays/layout.html;$bin/templates/lays/layout.html"
+    "$src/templates/stru/dix.html;$bin/templates/stru/dix.html"
+# css
+    "$src/static/css/inc/reset.css;$bin/static/css/inc/reset.css"
+    "$src/static/css/inc/style.css;$bin/static/css/inc/style.css"
+    "$src/static/css/elems/deb.css;$bin/static/css/elems/deb.css"
+# bash scripts
+    "$src/scr/s_s;$bin/scr/s_s"
+    "$src/scr/k_s;$bin/scr/k_s"
+)
