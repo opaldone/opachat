@@ -29,10 +29,7 @@ func (h *Hub) addClient(cl *Client) {
 
 func (h *Hub) removeClient(cl *Client) {
 	h.lockHub.Lock()
-	if _, ok := h.clients[cl.uquser]; ok {
-		delete(h.clients, cl.uquser)
-		close(cl.send)
-	}
+	delete(h.clients, cl.uquser)
 	h.lockHub.Unlock()
 }
 
