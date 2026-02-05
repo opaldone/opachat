@@ -19,7 +19,6 @@ const (
 	SCRECD    = "screencd"
 	BREC      = "beginrecord"
 	EREC      = "endrecord"
-	AREC      = "anotherrecord"
 	RREC      = "remrec"
 	CHAT      = "chat"
 	TALKERST  = "talkerstopped"

@@ -380,31 +380,6 @@ func (r *Room) notifTalkersStoppedRecord(me *Client) {
 	}
 }
 
-func (r *Room) notifTalkerAnotherRecord(c *Client) {
-	r.lockRoom.RLock()
-	defer r.lockRoom.RUnlock()
-
-	for _, talker := range r.talkers {
-		if !talker.wsc.recording {
-			continue
-		}
-
-		wc := WConnected{
-			StrID:     talker.strID,
-			Uquser:    talker.wsc.uquser,
-			Nik:       talker.wsc.nik,
-			Recording: talker.wsc.recording,
-		}
-
-		bont, _ := json.Marshal(wc)
-		res := string(bont)
-
-		c.sendMe(res, AREC)
-
-		return
-	}
-}
-
 func (r *Room) notifTalkersChangedOpts(me *Client) {
 	if me.talker == nil {
 		return
@@ -551,16 +526,13 @@ func (r *Room) startRecord(c *Client) {
 	emptyke := len(r.keSaver) == 0
 	r.lockRoom.RUnlock()
 
-	if emptyke {
-		startRec(r)
-
-		go r.monitorRecording()
-
-		r.notifTalkersStartedRecord(c)
+	if !emptyke {
 		return
 	}
 
-	r.notifTalkerAnotherRecord(c)
+	startRec(r)
+	go r.monitorRecording()
+	r.notifTalkersStartedRecord(c)
 }
 
 func (r *Room) stopRecord(c *Client) {

@@ -41,7 +41,7 @@ type Client struct {
 	talker     *Talker
 	hub        *Hub
 	conn       *websocket.Conn
-	send       chan []byte
+	chasend    chan []byte
 	lockClient sync.RWMutex
 }
 
@@ -50,11 +50,16 @@ func (c *Client) sendMe(str string, co string) {
 		return
 	}
 
+	if c.chasend == nil {
+		return
+	}
+
 	msg := new(Message)
 	msg.Tp = co
 	msg.Content = str
 	bts, _ := json.Marshal(msg)
-	c.send <- bts
+
+	c.chasend <- bts
 }
 
 func (c *Client) sendMeWhoConnected(onlyInvis bool) {
@@ -72,6 +77,7 @@ func (c *Client) stopClient() {
 
 	c.hub.unregister <- c
 	c.conn.Close()
+	c.chasend = nil
 
 	if c.talker == nil {
 		return
@@ -184,7 +190,7 @@ func (c *Client) writePump() {
 	}()
 	for {
 		select {
-		case message, ok := <-c.send:
+		case message, ok := <-c.chasend:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if !ok {
 				// The hub closed the channel.
@@ -199,10 +205,10 @@ func (c *Client) writePump() {
 
 			w.Write(message)
 
-			n := len(c.send)
+			n := len(c.chasend)
 			for range n {
 				w.Write(newline)
-				w.Write(<-c.send)
+				w.Write(<-c.chasend)
 			}
 
 			if err := w.Close(); err != nil {
@@ -247,7 +253,7 @@ func ServeWs(roomuqin string, useruqin string,
 		recording: false,
 		hub:       hubin,
 		conn:      connin,
-		send:      make(chan []byte, 256),
+		chasend:   make(chan []byte, 256),
 	}
 
 	if !startvirt {
