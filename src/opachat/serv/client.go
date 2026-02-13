@@ -37,6 +37,7 @@ type Client struct {
 	invis      bool
 	ke         string
 	recording  bool
+	crecording bool
 	screen     bool
 	talker     *Talker
 	hub        *Hub
@@ -50,20 +51,20 @@ func (c *Client) sendMe(str string, co string) {
 		return
 	}
 
-	if c.chasend == nil {
-		return
-	}
-
 	msg := new(Message)
 	msg.Tp = co
 	msg.Content = str
 	bts, _ := json.Marshal(msg)
 
-	c.chasend <- bts
+	sen := new(HubMessage)
+	sen.uquser = c.uquser
+	sen.msg = bts
+
+	c.hub.sender <- sen
 }
 
 func (c *Client) sendMeWhoConnected(onlyInvis bool) {
-	str := whoConnectedRoom(c.uqroom, c.uquser, onlyInvis)
+	str := WhoConnectedRoom(c.uqroom, c.uquser, onlyInvis)
 
 	if len(str) == 0 {
 		return
@@ -77,7 +78,6 @@ func (c *Client) stopClient() {
 
 	c.hub.unregister <- c
 	c.conn.Close()
-	c.chasend = nil
 
 	if c.talker == nil {
 		return
@@ -146,6 +146,10 @@ func (c *Client) processMessage(msg *Message) {
 		startRecord(c)
 	case EREC:
 		stopRecord(c)
+	case CLBREC:
+		startedClientRecord(c)
+	case CLEREC:
+		stoppedClientRecord(c)
 	case RREC:
 		removeRecord(c)
 	case CHAT:

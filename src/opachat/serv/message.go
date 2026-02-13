@@ -20,9 +20,17 @@ const (
 	BREC      = "beginrecord"
 	EREC      = "endrecord"
 	RREC      = "remrec"
+	CLBREC    = "clbeginrecord"
+	CLEREC    = "clendrecord"
 	CHAT      = "chat"
 	TALKERST  = "talkerstopped"
 )
+
+// Message for hub select
+type HubMessage struct {
+	uquser string
+	msg    []byte
+}
 
 // Message define our message object
 type Message struct {
@@ -38,15 +46,16 @@ type AVConfig struct {
 }
 
 type WConnected struct {
-	StrID     string `json:"strid"`
-	Uquser    string `json:"uquser"`
-	Nik       string `json:"nik"`
-	Mic       bool   `json:"mic"`
-	Cam       bool   `json:"cam"`
-	ScreenOn  bool   `json:"screen_on"`
-	Recording bool   `json:"recording"`
-	Vili      string `json:"vili"`
-	ChatMsg   string `json:"chat_message"`
+	StrID      string `json:"strid"`
+	Uquser     string `json:"uquser"`
+	Nik        string `json:"nik"`
+	Mic        bool   `json:"mic"`
+	Cam        bool   `json:"cam"`
+	ScreenOn   bool   `json:"screen_on"`
+	Recording  bool   `json:"recording"`
+	Crecording bool   `json:"crecording"`
+	Vili       string `json:"vili"`
+	ChatMsg    string `json:"chat_message"`
 }
 
 type ListConnected struct {

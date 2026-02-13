@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"time"
 
+	_ "net/http/pprof"
+
 	"opachat/controllers"
 	"opachat/tools"
 
@@ -29,14 +31,26 @@ func main() {
 	startSelf(e)
 }
 
-func startSelf(e *tools.Configuration) {
-	fmt.Printf("\n[%s] %s\ntime\t\t%s\ncrt\t\t%s\nkey\t\t%s\naddress\t\t%s:%d\nturn\t\t%s\n",
-		"self", e.Appname,
+func shows(e *tools.Configuration, ttl string) {
+	fmt.Printf("\n%s [%s]\n"+
+		"started at: %s\n",
+		e.Appname, ttl,
 		time.Now().Format("2006-01-02 15:04:05"),
-		e.Crt, e.Key,
-		e.Address, e.Port,
-		e.IceList[0]["urls"],
 	)
+}
+
+func startPprof() {
+	// http://localhost:7070/debug/pprof/goroutine?debug=1
+
+	go func() {
+		http.ListenAndServe(":7070", nil)
+	}()
+}
+
+func startSelf(e *tools.Configuration) {
+	shows(e, "self")
+
+	startPprof()
 
 	mux := controllers.GetRouters()
 
@@ -53,12 +67,7 @@ func startSelf(e *tools.Configuration) {
 }
 
 func startAcme(e *tools.Configuration) {
-	fmt.Printf("\n[%s] %s\ntime\t\t%s\nacmehost\t%s\ndirCache\t%s\naddress\t\t%s:%d\nturn\t\t%s\n",
-		"acme", e.Appname,
-		time.Now().Format("2006-01-02 15:04:05"),
-		e.Acmehost, e.DirCache, e.Address, e.Port,
-		e.IceList[0]["urls"],
-	)
+	shows(e, "acme")
 
 	certManager := &autocert.Manager{
 		Prompt:     autocert.AcceptTOS,
