@@ -33,16 +33,17 @@ type Room struct {
 }
 
 type TalkerDebType struct {
-	Nik       string   `json:"nik"`
-	Uquser    string   `json:"uquser"`
-	StrID     string   `json:"strID"`
-	Recording bool     `json:"recording"`
-	Screen    bool     `json:"screen"`
-	Sound     bool     `json:"sound"`
-	Video     bool     `json:"video"`
-	Invis     bool     `json:"invis"`
-	Ke        string   `json:"ke"`
-	Ices      []string `json:"ices"`
+	Nik        string   `json:"nik"`
+	Uquser     string   `json:"uquser"`
+	StrID      string   `json:"strID"`
+	Recording  bool     `json:"recording"`
+	Crecording bool     `json:"crecording"`
+	Screen     bool     `json:"screen"`
+	Sound      bool     `json:"sound"`
+	Video      bool     `json:"video"`
+	Invis      bool     `json:"invis"`
+	Ke         string   `json:"ke"`
+	Ices       []string `json:"ices"`
 }
 
 type RoomDebType struct {
@@ -268,13 +269,14 @@ func (r *Room) getConnectedList(me string, onlyInvis bool) (res string) {
 		}
 
 		lis[talker.strID] = WConnected{
-			StrID:     talker.strID,
-			Uquser:    talker.wsc.uquser,
-			Nik:       talker.wsc.nik,
-			Mic:       talker.sound,
-			Cam:       talker.video,
-			Recording: talker.wsc.recording,
-			ScreenOn:  talker.wsc.screen,
+			StrID:      talker.strID,
+			Uquser:     talker.wsc.uquser,
+			Nik:        talker.wsc.nik,
+			Mic:        talker.sound,
+			Cam:        talker.video,
+			Recording:  talker.wsc.recording,
+			Crecording: talker.wsc.crecording,
+			ScreenOn:   talker.wsc.screen,
 		}
 	}
 
@@ -338,12 +340,7 @@ func (r *Room) notifTalkersStop(me *Client) {
 	}
 }
 
-func (r *Room) notifTalkersStartedRecord(me *Client) {
-	r.lockRoom.RLock()
-	defer r.lockRoom.RUnlock()
-
-	me.recording = true
-
+func (r *Room) notifStartedRecord(me *Client, msgtag string) {
 	wc := WConnected{
 		StrID: me.talker.strID,
 	}
@@ -356,16 +353,28 @@ func (r *Room) notifTalkersStartedRecord(me *Client) {
 			continue
 		}
 
-		talker.wsc.sendMe(res, BREC)
+		talker.wsc.sendMe(res, msgtag)
 	}
 }
-
-func (r *Room) notifTalkersStoppedRecord(me *Client) {
+func (r *Room) notifTalkersStartedRecord(me *Client) {
 	r.lockRoom.RLock()
 	defer r.lockRoom.RUnlock()
 
-	me.recording = false
+	me.recording = true
 
+	r.notifStartedRecord(me, BREC)
+}
+
+func (r *Room) notifTalkersCliStartedRecord(me *Client) {
+	r.lockRoom.RLock()
+	defer r.lockRoom.RUnlock()
+
+	me.crecording = true
+
+	r.notifStartedRecord(me, CLBREC)
+}
+
+func (r *Room) notifStoppedRecord(me *Client, msgtag string) {
 	wc := WConnected{
 		StrID:  me.talker.strID,
 		Uquser: me.uquser,
@@ -376,8 +385,26 @@ func (r *Room) notifTalkersStoppedRecord(me *Client) {
 	res := string(bont)
 
 	for _, talker := range r.talkers {
-		talker.wsc.sendMe(res, EREC)
+		talker.wsc.sendMe(res, msgtag)
 	}
+}
+
+func (r *Room) notifTalkersStoppedRecord(me *Client) {
+	r.lockRoom.RLock()
+	defer r.lockRoom.RUnlock()
+
+	me.recording = false
+
+	r.notifStoppedRecord(me, EREC)
+}
+
+func (r *Room) notifTalkersCliStoppedRecord(me *Client) {
+	r.lockRoom.RLock()
+	defer r.lockRoom.RUnlock()
+
+	me.crecording = false
+
+	r.notifStoppedRecord(me, CLEREC)
 }
 
 func (r *Room) notifTalkersChangedOpts(me *Client) {

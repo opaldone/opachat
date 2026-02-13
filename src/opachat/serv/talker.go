@@ -233,6 +233,7 @@ func (t *Talker) getInfo() (ret TalkerDebType) {
 	ret.Uquser = t.wsc.uquser
 	ret.StrID = t.strID
 	ret.Recording = t.wsc.recording
+	ret.Crecording = t.wsc.crecording
 	ret.Screen = t.wsc.screen
 	ret.Sound = t.sound
 	ret.Video = t.video

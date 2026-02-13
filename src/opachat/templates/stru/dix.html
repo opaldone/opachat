@@ -52,12 +52,13 @@
                     <th style="width:20%">Uquser</th>
                     <th style="width:20%">StrID</th>
                     <th style="width:2%">Invisible</th>
-                    <th style="width:2%">Recording</th>
+                    <th style="width:2%">Ser rec</th>
+                    <th style="width:2%">Cli rec</th>
                     <th style="width:2%">Screen</th>
                     <th style="width:2%">Sound</th>
                     <th style="width:2%">Video</th>
                     <th style="width:10%">Ke</th>
-                    <th style='width:22%'>Ices</th>
+                    <th style="width:18%">Ices</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -75,6 +76,13 @@
                       </td>
                       <td class="td-cen">
                         {{ if .Recording }}
+                          <span>+</span>
+                        {{ else }}
+                          <span class="neg">-</span>
+                        {{ end }}
+                      </td>
+                      <td class="td-cen">
+                        {{ if .Crecording }}
                           <span>+</span>
                         {{ else }}
                           <span class="neg">-</span>

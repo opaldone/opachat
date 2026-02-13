@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -32,20 +31,4 @@ func Ws(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 
 	serv.ServeWs(roomuq, useruq, perroom, nik, ke, hub, w, r)
-}
-
-func Di(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	uq := ps.ByName("uq")
-
-	if uq != "shpa" && uq != tools.GetKeyCSRF() {
-		fmt.Printf("\ncsrf\t\t%s\n",
-			tools.GetKeyCSRF(),
-		)
-
-		return
-	}
-
-	deb := serv.GetShowRooms()
-
-	GenerateHTMLEmp(w, r, deb, "stru/dix")
 }

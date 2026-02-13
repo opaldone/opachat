@@ -78,7 +78,7 @@ func removeRoom(uqroom string) {
 	lockRooms.Unlock()
 }
 
-func whoConnectedRoom(uqroomIn string, me string, onlyInvis bool) (res string) {
+func WhoConnectedRoom(uqroomIn string, me string, onlyInvis bool) (res string) {
 	roo := getRoom(uqroomIn)
 
 	if roo == nil {
@@ -148,6 +148,26 @@ func stopRecord(cl *Client) {
 	}
 
 	roo.stopRecord(cl)
+}
+
+func startedClientRecord(cl *Client) {
+	roo := getClientRoom(cl)
+
+	if roo == nil {
+		return
+	}
+
+	roo.notifTalkersCliStartedRecord(cl)
+}
+
+func stoppedClientRecord(cl *Client) {
+	roo := getClientRoom(cl)
+
+	if roo == nil {
+		return
+	}
+
+	roo.notifTalkersCliStoppedRecord(cl)
 }
 
 func removeRecord(cl *Client) {
