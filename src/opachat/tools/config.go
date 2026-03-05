@@ -18,16 +18,6 @@ type Configuration struct {
 	Crt      string              `json:"crt,omitempty"`
 	Key      string              `json:"key,omitempty"`
 	IceList  []map[string]string `json:"iceList"`
-	Recorder *ConfRecorder       `json:"recorder,omitempty"`
-}
-
-type ConfRecorder struct {
-	URLVirt  string `json:"urlVirt"`
-	SoundLib string `json:"soundLib"`
-	IHw      string `json:"iHw"`
-	ScrRes   string `json:"scrRes"`
-	LogLevel string `json:"logLevel"`
-	Timeout  int    `json:"timeout"`
 }
 
 var (
