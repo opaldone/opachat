@@ -25,7 +25,9 @@ func NewHub() *Hub {
 
 func (h *Hub) addClient(cl *Client) {
 	h.lockHub.Lock()
-	h.clients[cl.uquser] = cl
+	if _, ok := h.clients[cl.uquser]; !ok {
+		h.clients[cl.uquser] = cl
+	}
 	h.lockHub.Unlock()
 }
 

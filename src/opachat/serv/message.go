@@ -19,14 +19,13 @@ const (
 	SCRECD    = "screencd"
 	BREC      = "beginrecord"
 	EREC      = "endrecord"
-	RREC      = "remrec"
 	CLBREC    = "clbeginrecord"
 	CLEREC    = "clendrecord"
 	CHAT      = "chat"
 	TALKERST  = "talkerstopped"
 )
 
-// Message for hub select
+// HubMessage is a message for hub select
 type HubMessage struct {
 	uquser string
 	msg    []byte
@@ -42,6 +41,7 @@ type AVConfig struct {
 	Sound    bool `json:"sound"`
 	Video    bool `json:"video"`
 	Invis    bool `json:"invis"`
+	Virt     bool `json:"virt"`
 	ScreenOn bool `json:"screen_on"`
 }
 
@@ -54,7 +54,6 @@ type WConnected struct {
 	ScreenOn   bool   `json:"screen_on"`
 	Recording  bool   `json:"recording"`
 	Crecording bool   `json:"crecording"`
-	Vili       string `json:"vili"`
 	ChatMsg    string `json:"chat_message"`
 }
 

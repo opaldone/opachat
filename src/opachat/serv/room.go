@@ -2,30 +2,17 @@ package serv
 
 import (
 	"encoding/json"
-	"fmt"
-	"os"
 	"sort"
 	"sync"
-	"syscall"
 	"time"
-
-	"opachat/tools"
 
 	"github.com/pion/webrtc/v4"
 	// "github.com/pion/webrtc/v3"
 )
 
-type OsaType struct {
-	Pxv  int `json:"pxv,omitempty"`
-	Pff  int `json:"pff,omitempty"`
-	Pgoo int `json:"pgoo,omitempty"`
-}
-
-// Room is a room
 type Room struct {
 	id          string
 	perRoom     int
-	keSaver     string
 	talkers     map[string]*Talker
 	removeMe    func(string)
 	trackLocals map[string]*webrtc.TrackLocalStaticRTP
@@ -42,7 +29,7 @@ type TalkerDebType struct {
 	Sound      bool     `json:"sound"`
 	Video      bool     `json:"video"`
 	Invis      bool     `json:"invis"`
-	Ke         string   `json:"ke"`
+	Virt       bool     `json:"virt"`
 	Ices       []string `json:"ices"`
 }
 
@@ -50,9 +37,7 @@ type RoomDebType struct {
 	RoomID         string          `json:"room_id"`
 	TalkersLen     int             `json:"talkers_len"`
 	TrackLocalsLen int             `json:"trackLocals_len"`
-	KeSaver        string          `json:"keSaver"`
 	Talkers        []TalkerDebType `json:"talkers"`
-	Osa            *OsaType        `json:"osa,omitempty"`
 }
 
 type RoomsDebugType struct {
@@ -64,7 +49,6 @@ func NewRoom(uqroom string, perroom int, remFn func(string)) *Room {
 	r := &Room{
 		id:          uqroom,
 		perRoom:     perroom,
-		keSaver:     "",
 		removeMe:    remFn,
 		trackLocals: map[string]*webrtc.TrackLocalStaticRTP{},
 	}
@@ -261,10 +245,10 @@ func (r *Room) getConnectedList(me string, onlyInvis bool) (res string) {
 		if talker.wsc.uquser == me {
 			continue
 		}
-		if len(talker.wsc.ke) > 0 {
+		if onlyInvis && !talker.wsc.invis {
 			continue
 		}
-		if onlyInvis && !talker.wsc.invis {
+		if talker.wsc.virt {
 			continue
 		}
 
@@ -340,7 +324,23 @@ func (r *Room) notifTalkersStop(me *Client) {
 	}
 }
 
+func (r *Room) getRecordingClient() *Client {
+	r.lockRoom.RLock()
+	defer r.lockRoom.RUnlock()
+
+	for _, talker := range r.talkers {
+		if talker.wsc.recording {
+			return talker.wsc
+		}
+	}
+
+	return nil
+}
+
 func (r *Room) notifStartedRecord(me *Client, msgtag string) {
+	r.lockRoom.RLock()
+	defer r.lockRoom.RUnlock()
+
 	wc := WConnected{
 		StrID: me.talker.strID,
 	}
@@ -356,29 +356,14 @@ func (r *Room) notifStartedRecord(me *Client, msgtag string) {
 		talker.wsc.sendMe(res, msgtag)
 	}
 }
-func (r *Room) notifTalkersStartedRecord(me *Client) {
-	r.lockRoom.RLock()
-	defer r.lockRoom.RUnlock()
-
-	me.recording = true
-
-	r.notifStartedRecord(me, BREC)
-}
-
-func (r *Room) notifTalkersCliStartedRecord(me *Client) {
-	r.lockRoom.RLock()
-	defer r.lockRoom.RUnlock()
-
-	me.crecording = true
-
-	r.notifStartedRecord(me, CLBREC)
-}
 
 func (r *Room) notifStoppedRecord(me *Client, msgtag string) {
+	r.lockRoom.RLock()
+	defer r.lockRoom.RUnlock()
+
 	wc := WConnected{
 		StrID:  me.talker.strID,
 		Uquser: me.uquser,
-		Vili:   r.keSaver,
 	}
 
 	bont, _ := json.Marshal(wc)
@@ -387,24 +372,6 @@ func (r *Room) notifStoppedRecord(me *Client, msgtag string) {
 	for _, talker := range r.talkers {
 		talker.wsc.sendMe(res, msgtag)
 	}
-}
-
-func (r *Room) notifTalkersStoppedRecord(me *Client) {
-	r.lockRoom.RLock()
-	defer r.lockRoom.RUnlock()
-
-	me.recording = false
-
-	r.notifStoppedRecord(me, EREC)
-}
-
-func (r *Room) notifTalkersCliStoppedRecord(me *Client) {
-	r.lockRoom.RLock()
-	defer r.lockRoom.RUnlock()
-
-	me.crecording = false
-
-	r.notifStoppedRecord(me, CLEREC)
 }
 
 func (r *Room) notifTalkersChangedOpts(me *Client) {
@@ -476,168 +443,6 @@ func (r *Room) chatMessage(me *Client, msg string) {
 	}
 }
 
-func (r *Room) checkKe(kein string) bool {
-	r.lockRoom.RLock()
-	defer r.lockRoom.RUnlock()
-
-	if len(r.keSaver) == 0 {
-		return false
-	}
-
-	if r.keSaver != kein {
-		return false
-	}
-
-	return true
-}
-
-func (r *Room) getWriter() *Client {
-	r.lockRoom.RLock()
-	defer r.lockRoom.RUnlock()
-
-	for _, talker := range r.talkers {
-		if talker.wsc.recording {
-			return talker.wsc
-		}
-	}
-
-	return nil
-}
-
-func (r *Room) monitorRecording() {
-	ticker := time.NewTicker(3 * time.Second)
-	defer ticker.Stop()
-
-	_running := func(pid int) bool {
-		proc, _ := os.FindProcess(pid)
-
-		err := proc.Signal(syscall.Signal(0))
-
-		return err == nil
-	}
-
-	osain := r.getOsa()
-	pids := []int{}
-
-	for range ticker.C {
-		if osain != nil && len(pids) == 0 {
-			pids = append(pids, osain.Pxv)
-			pids = append(pids, osain.Pff)
-			pids = append(pids, osain.Pgoo)
-		}
-
-		if osain == nil {
-			osain = r.getOsa()
-		}
-
-		if len(pids) == 0 {
-			continue
-		}
-
-		for _, pid := range pids {
-			if _running(pid) {
-				continue
-			}
-
-			wrcl := r.getWriter()
-			if wrcl != nil {
-				r.stopRecord(wrcl)
-				return
-			}
-		}
-	}
-}
-
-func (r *Room) startRecord(c *Client) {
-	r.lockRoom.RLock()
-	emptyke := len(r.keSaver) == 0
-	r.lockRoom.RUnlock()
-
-	if !emptyke {
-		return
-	}
-
-	startRec(r)
-	go r.monitorRecording()
-	r.notifTalkersStartedRecord(c)
-}
-
-func (r *Room) stopRecord(c *Client) {
-	r.lockRoom.RLock()
-	emptyke := len(r.keSaver) == 0
-	r.lockRoom.RUnlock()
-
-	if emptyke {
-		return
-	}
-
-	stopRec(r)
-
-	r.notifTalkersStoppedRecord(c)
-}
-
-func (r *Room) getPathOsa() (string, string) {
-	r.lockRoom.RLock()
-	rid := r.id
-	r.lockRoom.RUnlock()
-
-	jsfile := fmt.Sprintf("./prcs/pr_%s.json", rid)
-
-	return rid, jsfile
-}
-
-func (r *Room) setKeRecorder() (string, string, string) {
-	kenew := tools.CreateUUID()
-
-	r.lockRoom.Lock()
-	r.keSaver = kenew
-	r.lockRoom.Unlock()
-
-	rid, jsfile := r.getPathOsa()
-
-	return rid, kenew, jsfile
-}
-
-func (r *Room) clearKeSaver() {
-	r.lockRoom.Lock()
-	r.keSaver = ""
-	r.lockRoom.Unlock()
-}
-
-func (r *Room) getOsa() *OsaType {
-	_, jsfile := r.getPathOsa()
-
-	osjsonstr, err := os.Open(jsfile)
-	if err != nil {
-		return nil
-	}
-
-	decoder := json.NewDecoder(osjsonstr)
-	ous := &OsaType{}
-	err = decoder.Decode(ous)
-	if err != nil {
-		tools.Danger(fmt.Sprintf("Cannot parse %s", jsfile), err)
-		return nil
-	}
-
-	return ous
-}
-
-func (r *Room) removeRecord() {
-	_, jsfile := r.getPathOsa()
-
-	if len(jsfile) == 0 {
-		return
-	}
-
-	err := os.Remove(jsfile)
-	if err != nil {
-		tools.Danger("Removing js file", err)
-	}
-
-	r.clearKeSaver()
-}
-
 func (r *Room) getInfo() (ret RoomDebType) {
 	r.lockRoom.RLock()
 	defer r.lockRoom.RUnlock()
@@ -645,7 +450,6 @@ func (r *Room) getInfo() (ret RoomDebType) {
 	ret.RoomID = r.id
 	ret.TalkersLen = len(r.talkers)
 	ret.TrackLocalsLen = len(r.trackLocals)
-	ret.KeSaver = r.keSaver
 
 	for _, t := range r.talkers {
 		ret.Talkers = append(ret.Talkers, t.getInfo())
@@ -654,11 +458,6 @@ func (r *Room) getInfo() (ret RoomDebType) {
 	sort.Slice(ret.Talkers, func(i, j int) bool {
 		return ret.Talkers[i].Nik < ret.Talkers[j].Nik
 	})
-
-	osa := r.getOsa()
-	if osa != nil {
-		ret.Osa = osa
-	}
 
 	return
 }

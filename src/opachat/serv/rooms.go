@@ -25,19 +25,13 @@ func getRoom(uqroomIn string) *Room {
 }
 
 func getClientRoom(cl *Client) *Room {
+	if cl == nil {
+		return nil
+	}
+
 	uqroomIn := cl.uqroom
 
 	return getRoom(uqroomIn)
-}
-
-func CheckKeRoom(uqroomIn string, keIn string) bool {
-	roo := getRoom(uqroomIn)
-
-	if roo == nil {
-		return false
-	}
-
-	return roo.checkKe(keIn)
 }
 
 func createRoom(uqroom string, perroom int) {
@@ -130,54 +124,48 @@ func talkerChangedScreen(me *Client, sv *AVConfig) {
 	roo.notifTalkersChangedScreen(me, sv)
 }
 
-func startRecord(cl *Client) {
+func startServerRecord(cl *Client) {
 	roo := getClientRoom(cl)
 
 	if roo == nil {
 		return
 	}
 
-	roo.startRecord(cl)
+	roo.notifStartedRecord(cl, BREC)
+	cl.setRecording(true)
 }
 
-func stopRecord(cl *Client) {
+func stopServerRecord(cl *Client) {
 	roo := getClientRoom(cl)
 
 	if roo == nil {
 		return
 	}
 
-	roo.stopRecord(cl)
+	roo.notifStoppedRecord(cl, EREC)
+	cl.setRecording(false)
 }
 
-func startedClientRecord(cl *Client) {
+func startClientRecord(cl *Client) {
 	roo := getClientRoom(cl)
 
 	if roo == nil {
 		return
 	}
 
-	roo.notifTalkersCliStartedRecord(cl)
+	roo.notifStartedRecord(cl, CLBREC)
+	cl.setCrecording(true)
 }
 
-func stoppedClientRecord(cl *Client) {
+func stopClientRecord(cl *Client) {
 	roo := getClientRoom(cl)
 
 	if roo == nil {
 		return
 	}
 
-	roo.notifTalkersCliStoppedRecord(cl)
-}
-
-func removeRecord(cl *Client) {
-	roo := getClientRoom(cl)
-
-	if roo == nil {
-		return
-	}
-
-	roo.removeRecord()
+	roo.notifStoppedRecord(cl, CLEREC)
+	cl.setCrecording(false)
 }
 
 func chatMessage(cl *Client, msg string) {

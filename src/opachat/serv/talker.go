@@ -238,7 +238,7 @@ func (t *Talker) getInfo() (ret TalkerDebType) {
 	ret.Sound = t.sound
 	ret.Video = t.video
 	ret.Invis = t.wsc.invis
-	ret.Ke = t.wsc.ke
+	ret.Virt = t.wsc.virt
 
 	for _, s := range t.pc.GetStats() {
 		switch stat := s.(type) {

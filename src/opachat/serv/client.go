@@ -27,6 +27,9 @@ var (
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
 }
 
 // Client is a middleman between the websocket connection and the hub.
@@ -35,7 +38,7 @@ type Client struct {
 	uquser     string
 	nik        string
 	invis      bool
-	ke         string
+	virt       bool
 	recording  bool
 	crecording bool
 	screen     bool
@@ -44,6 +47,18 @@ type Client struct {
 	conn       *websocket.Conn
 	chasend    chan []byte
 	lockClient sync.RWMutex
+}
+
+func (c *Client) setRecording(boo bool) {
+	c.lockClient.Lock()
+	c.recording = boo
+	c.lockClient.Unlock()
+}
+
+func (c *Client) setCrecording(boo bool) {
+	c.lockClient.Lock()
+	c.crecording = boo
+	c.lockClient.Unlock()
 }
 
 func (c *Client) sendMe(str string, co string) {
@@ -90,18 +105,14 @@ func (c *Client) processMessage(msg *Message) {
 	switch msg.Tp {
 	case JOINROOM:
 		av := decAV(msg.Content)
-
 		c.invis = av.Invis
-
+		c.virt = av.Virt
 		t := joinRoom(c, av)
-
 		if t == nil {
 			return
 		}
-
 		c.talker = t
-
-		if c.invis {
+		if c.invis && !c.virt {
 			talkerHi(c)
 		}
 	case CANDIDATE:
@@ -114,11 +125,9 @@ func (c *Client) processMessage(msg *Message) {
 		c.sendMeWhoConnected(true)
 	case AVC:
 		av := decAV(msg.Content)
-
 		if c.talker != nil {
 			c.talker.changeOpts(av)
 		}
-
 		talkerChangedOpts(c)
 	case SCRE:
 		sv := decAV(msg.Content)
@@ -143,15 +152,11 @@ func (c *Client) processMessage(msg *Message) {
 
 		talkerChangedScreen(c, sv)
 	case BREC:
-		startRecord(c)
-	case EREC:
-		stopRecord(c)
+		startServerRecord(c)
 	case CLBREC:
-		startedClientRecord(c)
+		startClientRecord(c)
 	case CLEREC:
-		stoppedClientRecord(c)
-	case RREC:
-		removeRecord(c)
+		stopClientRecord(c)
 	case CHAT:
 		chatMessage(c, msg.Content)
 	}
@@ -228,21 +233,9 @@ func (c *Client) writePump() {
 }
 
 // ServeWs handles websocket requests from the peer.
-func ServeWs(roomuqin string, useruqin string,
-	perroom int, nikin string, kein string,
-	hubin *Hub, win http.ResponseWriter, rin *http.Request,
+func ServeWs(roomuqin string, useruqin string, perroom int, nikin string, hubin *Hub,
+	win http.ResponseWriter, rin *http.Request,
 ) {
-	startvirt := len(kein) > 0
-
-	if startvirt && !CheckKeRoom(roomuqin, kein) {
-		tools.Log("ServeWs", "virt was not checked ke_in =", kein)
-		return
-	}
-
-	upgrader.CheckOrigin = func(r *http.Request) bool {
-		return true
-	}
-
 	connin, err := upgrader.Upgrade(win, rin, nil)
 	if err != nil {
 		tools.Danger("ServeWs", err)
@@ -253,16 +246,13 @@ func ServeWs(roomuqin string, useruqin string,
 		uqroom:    roomuqin,
 		uquser:    useruqin,
 		nik:       nikin,
-		ke:        kein,
 		recording: false,
 		hub:       hubin,
 		conn:      connin,
 		chasend:   make(chan []byte, 256),
 	}
 
-	if !startvirt {
-		createRoom(nc.uqroom, perroom)
-	}
+	createRoom(nc.uqroom, perroom)
 
 	nc.hub.register <- nc
 	go nc.writePump()

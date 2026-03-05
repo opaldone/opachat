@@ -23,12 +23,16 @@ func Ws(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	roomuq := ps.ByName("roomuq")
 	useruq := ps.ByName("useruq")
 	nik := qv.Get("nik")
-	ke := qv.Get("ke")
 
 	perroom, err := strconv.Atoi(ps.ByName("perroom"))
 	if err != nil {
 		tools.Danger("perroom convert", err)
 	}
 
-	serv.ServeWs(roomuq, useruq, perroom, nik, ke, hub, w, r)
+	serv.ServeWs(roomuq, useruq, perroom, nik, hub, w, r)
+}
+
+func WsErec(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	roomuq := ps.ByName("roomuq")
+	serv.ServeWsErec(roomuq, w, r)
 }

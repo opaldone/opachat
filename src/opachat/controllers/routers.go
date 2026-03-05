@@ -22,6 +22,7 @@ var list routes
 func init() {
 	list = routes{
 		"ws_connect": route{"GET", "/ws/:roomuq/:useruq/:perroom", Ws},
+		"ws_erec":    route{"GET", "/wserec/:roomuq", WsErec},
 		"di":         route{"GET", "/di/:uq", Di},
 		"lir":        route{"POST", "/lir/:roomuq", Lir},
 	}

@@ -42,16 +42,23 @@
 
 .deb-tbl td.td-cen span {
   display: inline-block;
-  padding: 0 5px 3px 5px;
-  font-size: 16px;
-  line-height: 16px;
-  color: #fff;
-  background-color: #2b5de5;
-  border-radius: 10px;
+  background-color: #fff;
+  border: 5px solid #2b5de5;
+  width: 15px;
+  height: 15px;
+  line-height: 0;
+  border-radius: 50%;
 }
 
 .deb-tbl td.td-cen span.neg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
   background: none;
+  border: none;
+  font-size: 16px;
+  line-height: 16px;
   color: #000;
 }
 
