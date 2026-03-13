@@ -1,14 +1,46 @@
-# Opachat
-Video and audio broadcasting WebRTC server. With the ability of recording a chat session, both on the server and on the client. An example of a client for the server You can find here [opaweb](https://github.com/opaldone/opaweb)
+<h1 align="center">
+  <img src="./lo.svg" alt="Opachat">
+  <br />
+  Opachat
+  <br />
+</h1>
+<h4 align="center">
+  WebRTC server for video and audio broadcasting. A client example can be found here: <a href="https://github.com/opaldone/opaweb">opaweb</a>
+</h4>
+<p align="center">
+<img src="https://img.shields.io/badge/opaldone-opachat-gray.svg?longCache=true&colorB=brightgreen" alt="Opachat" />
+<a href="https://sourcegraph.com/github.com/opaldone/opachat?badge">
+  <img src="https://sourcegraph.com/github.com/opaldone/opachat/-/badge.svg" alt="Sourcegraph Widget" />
+</a>
+</p>
+<br />
 
-## It depends on these great packages
-![@pion](https://avatars.githubusercontent.com/u/38192892?s=15&v=4) https://github.com/pion/webrtc \
-![@gorilla](https://avatars.githubusercontent.com/u/489566?s=15&v=4) https://github.com/gorilla/csrf \
-![@gorilla](https://avatars.githubusercontent.com/u/489566?s=15&v=4) https://github.com/gorilla/websocket \
-![@julienschmidt](https://avatars.githubusercontent.com/u/944947?s=15&v=4) https://github.com/julienschmidt/httprouter \
-![@letsencrypt](https://avatars.githubusercontent.com/u/9289019?s=15&v=4) https://pkg.go.dev/golang.org/x/crypto/acme/autocert
+### Built with these excellent Go libraries
+<p>
+  <a href="https://github.com/pion/webrtc" style="text-decoration:none;">
+    <img src="https://avatars.githubusercontent.com/u/38192892?s=30&v=4" alt="pion" style="vertical-align:middle;margin-right:10px;height:30px" />
+    <span style="vertical-align:middle">pion/webrtc</span>
+  </a>
+  <a href="https://github.com/gorilla/csrf" style="text-decoration:none;">
+    <img src="https://avatars.githubusercontent.com/u/489566?s=30&v=4" alt="gorilla CSRF" style="vertical-align:middle;margin-right:10px;margin-left:10px;height:30px" />
+    <span style="vertical-align:middle">gorilla/csrf</span>
+  </a>
+  <a href="https://github.com/gorilla/websocket" style="text-decoration:none;">
+    <img src="https://avatars.githubusercontent.com/u/489566?s=30&v=4" alt="gorilla websocket" style="vertical-align:middle;margin-right:10px;margin-left:10px;height:30px" />
+    <span style="vertical-align:middle">gorilla/websocket</span>
+  </a>
+  <a href="https://github.com/julienschmidt/httprouter" style="text-decoration:none;">
+    <img src="https://avatars.githubusercontent.com/u/944947?s=30&v=4" alt="julienschmidt httprouter" style="vertical-align:middle;margin-right:10px;margin-left:10px;height:30px" />
+    <span style="vertical-align:middle">julienschmidt/httprouter</span>
+  </a>
+  <a href="https://pkg.go.dev/golang.org/x/crypto/acme/autocert" style="text-decoration:none;">
+    <img src="https://avatars.githubusercontent.com/u/9289019?s=30&v=4" alt="acme autocert" style="vertical-align:middle;margin-right:10px;margin-left:10px;height:30px" />
+    <span style="vertical-align:middle">acme/autocert</span>
+  </a>
+</p>
+<h1></h1>
 
-## How to install and compile
+### How to install and compile
 ##### Clonning
 ```bash
 git clone https://github.com/opaldone/opachat.git
@@ -17,7 +49,7 @@ git clone https://github.com/opaldone/opachat.git
 ```bash
 cd opachat
 ```
-##### Set the GOPATH variable to the current directory "opachat" to avoid cluttering the global GOPATH directory
+##### Set your GOPATH to the "opachat" directory to keep your global GOPATH clean
 ```bash
 export GOPATH=$(pwd)
 ```
@@ -62,32 +94,40 @@ ls -lash --group-directories-first bin
 ```bash
 ./r
 ```
-## About config
+### About config
 The config file is located here __opachat/bin/config.json__
 ```JavaScript
 {
   // Just a name of application
   "appname": "opachat",
+
   // IP address of the server, zeros mean current host
   "address": "0.0.0.0",
+
   // Port, don't forget to open for firewall
-  "port": 7778,
+  "port": 8080,
+
   // The folder that stores the frontend part of the site
   "static": "static",
+
   // Set "acme": true if You need to use acme/autocert
   // false - if You use self-signed certificates
   "acme": false,
+
   // The array of domain names, set "acme": true
   "acmehost": [
     "opaldone.click",
     "206.189.101.23",
     "www.opaldone.click"
   ],
+
   // The folder where acme/autocert will store the keys, set "acme": true
   "dirCache": "./certs",
+
   // The paths to your self-signed HTTPS keys, set "acme": false
   "crt": "/server.crt",
   "key": "/server.key",
+
   // array of STUN or TURN servers for web rtc connection
   "iceList": [
     {
@@ -98,18 +138,9 @@ The config file is located here __opachat/bin/config.json__
       // The password for turn server
       "credential": "password"
     }
-  ],
-  // These are parameters for server session saving via ffmpeg
-  // You can investigate it in
-  // src/opachat/serv/recorder.go
-  // src/opachat/scr/s_s
-  "recorder": {
-    "urlVirt": "https://admigo.so/virt",
-    "soundLib": "pulse",
-    "iHw": "0",
-    "scrRes": "2560x1080",
-    "logLevel": "error",
-    "timeout": 10
-  }
+  ]
 }
 ```
+
+### License
+MIT License - see [LICENSE](LICENSE) for full text
