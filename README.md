@@ -15,29 +15,16 @@
 </p>
 <br />
 
-### Built with these excellent Go libraries
-<p>
-  <a href="https://github.com/pion/webrtc" style="text-decoration:none;">
-    <img src="https://avatars.githubusercontent.com/u/38192892?s=30&v=4" alt="pion" style="vertical-align:middle;margin-right:10px;height:30px" />
-    <span style="vertical-align:middle">pion/webrtc</span>
-  </a>
-  <a href="https://github.com/gorilla/csrf" style="text-decoration:none;">
-    <img src="https://avatars.githubusercontent.com/u/489566?s=30&v=4" alt="gorilla CSRF" style="vertical-align:middle;margin-right:10px;margin-left:10px;height:30px" />
-    <span style="vertical-align:middle">gorilla/csrf</span>
-  </a>
-  <a href="https://github.com/gorilla/websocket" style="text-decoration:none;">
-    <img src="https://avatars.githubusercontent.com/u/489566?s=30&v=4" alt="gorilla websocket" style="vertical-align:middle;margin-right:10px;margin-left:10px;height:30px" />
-    <span style="vertical-align:middle">gorilla/websocket</span>
-  </a>
-  <a href="https://github.com/julienschmidt/httprouter" style="text-decoration:none;">
-    <img src="https://avatars.githubusercontent.com/u/944947?s=30&v=4" alt="julienschmidt httprouter" style="vertical-align:middle;margin-right:10px;margin-left:10px;height:30px" />
-    <span style="vertical-align:middle">julienschmidt/httprouter</span>
-  </a>
-  <a href="https://pkg.go.dev/golang.org/x/crypto/acme/autocert" style="text-decoration:none;">
-    <img src="https://avatars.githubusercontent.com/u/9289019?s=30&v=4" alt="acme autocert" style="vertical-align:middle;margin-right:10px;margin-left:10px;height:30px" />
-    <span style="vertical-align:middle">acme/autocert</span>
-  </a>
-</p>
+<h3>
+Built with these excellent libraries
+<img src="https://go.dev/blog/go-brand/Go-Logo/SVG/Go-Logo_Blue.svg" height="45px" vertical-align="middle" />
+</h3>
+
+* [pion-webrtc](https://github.com/pion/webrtc)
+* [gorilla-csrf](https://github.com/gorilla/csrf)
+* [gorilla-websocket](https://github.com/gorilla/websocket)
+* [julienschmidt-httprouter](https://github.com/julienschmidt/httprouter)
+* [acme-autocert](https://pkg.go.dev/golang.org/x/crypto/acme/autocert)
 <h1></h1>
 
 ### How to install and compile
