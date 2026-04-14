@@ -7,14 +7,7 @@
 <h4 align="center">
   WebRTC server for video and audio broadcasting. A client example can be found here: <a href="https://github.com/opaldone/opaweb">opaweb</a>
 </h4>
-<p align="center">
-<img src="https://img.shields.io/badge/opaldone-opachat-gray.svg?longCache=true&colorB=brightgreen" alt="Opachat" />
-<a href="https://sourcegraph.com/github.com/opaldone/opachat?badge">
-  <img src="https://sourcegraph.com/github.com/opaldone/opachat/-/badge.svg" alt="Sourcegraph Widget" />
-</a>
-</p>
 <br />
-
 <h3>
 Built with these excellent libraries
 <img src="https://go.dev/blog/go-brand/Go-Logo/SVG/Go-Logo_Blue.svg" height="45px" vertical-align="middle" />
