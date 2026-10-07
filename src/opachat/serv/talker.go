@@ -131,6 +131,7 @@ func (t *Talker) connectionStateChange(p webrtc.PeerConnectionState) {
 			tools.Danger("connectionStateChange close", err)
 		}
 	case webrtc.PeerConnectionStateClosed:
+		talkerStop(t.wsc)
 		t.room.signalPeerConnections()
 	default:
 	}

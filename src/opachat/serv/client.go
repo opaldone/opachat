@@ -89,8 +89,6 @@ func (c *Client) sendMeWhoConnected(onlyInvis bool) {
 }
 
 func (c *Client) stopClient() {
-	talkerStop(c)
-
 	c.hub.unregister <- c
 	c.conn.Close()
 

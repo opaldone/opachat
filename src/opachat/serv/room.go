@@ -214,9 +214,9 @@ func (r *Room) addTalker(c *Client, av *AVConfig) *Talker {
 	return newTalker
 }
 
-func (r *Room) removeTalker(idTalker string) {
+func (r *Room) removeTalker(uquserin string) {
 	r.lockRoom.RLock()
-	_, exists := r.talkers[idTalker]
+	_, exists := r.talkers[uquserin]
 	r.lockRoom.RUnlock()
 
 	if !exists {
@@ -224,7 +224,7 @@ func (r *Room) removeTalker(idTalker string) {
 	}
 
 	r.lockRoom.Lock()
-	delete(r.talkers, idTalker)
+	delete(r.talkers, uquserin)
 	r.lockRoom.Unlock()
 
 	r.lockRoom.RLock()
