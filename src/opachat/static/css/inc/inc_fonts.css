@@ -1,0 +1,14 @@
+@font-face {
+  font-family: "GeistMono";
+  font-style: normal;
+  font-weight: normal;
+  src: url(/static/external/fonts/geist_mono/GeistMono-Regular.ttf) format("truetype");
+}
+
+
+@font-face {
+  font-family: "GeistMono";
+  font-style: normal;
+  font-weight: 500;
+  src: url(/static/external/fonts/geist_mono/GeistMono-Medium.ttf) format("truetype");
+}

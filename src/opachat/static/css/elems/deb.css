@@ -1,11 +1,16 @@
-body {
-  background-color: #171717;
-}
-
 #deb-cont {
   width: 100%;
-  padding: 20px;
+  padding: 10px;
+}
 
+.no-sessions {
+  width: 100%;
+  font-size: 20px;
+  line-height: 22px;
+  color: #a7a7a7;
+  background-color: #272727;
+  text-align: center;
+  border-radius: 10px;
 }
 
 .deb-tbl {
@@ -20,11 +25,20 @@ body {
 .deb-tbl td {
   font-size: 14px;
   line-height: 16px;
-  padding: 5px 15px 9px 15px;
+  padding: 5px 10px 5px 10px;
   border-color: #373737;
   border-style: solid;
   border-width: 1px;
   vertical-align: middle;
+}
+
+.deb-tbl td.hita {
+  color: #00aaff;
+  cursor: pointer;
+}
+
+.deb-tbl td.hita.se {
+  color: #ff9933;
 }
 
 .deb-tbl th {
@@ -33,6 +47,32 @@ body {
   color: #b7b7b7;
   background-color: #272727;
   text-align: left;
+}
+
+.deb-tbl .mega-ttl {
+  text-align: center;
+  color: #fff;
+  font-weight: 500;
+}
+
+
+#ref-ttl {
+  cursor: pointer;
+  padding: 10px;
+}
+
+#ref-ttl.no-sessions {
+  padding: 20px 0;
+}
+
+#ref-ttl:hover {
+  background-color: #202020;
+}
+
+#ref-ttl span {
+  display: inline-block;
+  margin-left: 7px;
+  color: #ff9933;
 }
 
 .deb-tbl td {

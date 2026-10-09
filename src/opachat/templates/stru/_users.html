@@ -1,0 +1,91 @@
+{{ define "_users" }}
+<tr>
+  <td class="w-tbl" colspan="3">
+    <table class="deb-tbl">
+      <thead>
+        <tr>
+          <th colspan="11" class="mega-ttl">Users</th>
+        </tr>
+        <tr>
+          <th style="width:20%">Nik</th>
+          <th style="width:20%">Uquser</th>
+          <th style="width:20%">StrID</th>
+          <th style="width:2%">Invisible</th>
+          <th style="width:2%">Virt</th>
+          <th style="width:2%">Ser rec</th>
+          <th style="width:2%">Cli rec</th>
+          <th style="width:2%">Screen</th>
+          <th style="width:2%">Sound</th>
+          <th style="width:2%">Video</th>
+          <th style="width:26%">Ices</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{ range .Talkers }}
+        <tr>
+          <td>{{ .Nik }}</td>
+          <td class="hita">{{ .Uquser }}</td>
+          <td class="hita">{{ .StrID }}</td>
+          <td class="td-cen">
+            {{ if .Invis }}
+            <span></span>
+            {{ else }}
+            <span class="neg">-</span>
+            {{ end }}
+          </td>
+          <td class="td-cen">
+            {{ if .Virt }}
+            <span></span>
+            {{ else }}
+            <span class="neg">-</span>
+            {{ end }}
+          </td>
+          <td class="td-cen">
+            {{ if .Recording }}
+            <span></span>
+            {{ else }}
+            <span class="neg">-</span>
+            {{ end }}
+          </td>
+          <td class="td-cen">
+            {{ if .Crecording }}
+            <span></span>
+            {{ else }}
+            <span class="neg">-</span>
+            {{ end }}
+          </td>
+          <td class="td-cen">
+            {{ if .Screen }}
+            <span></span>
+            {{ else }}
+            <span class="neg">-</span>
+            {{ end }}
+          </td>
+          <td class="td-cen">
+            {{ if .Sound }}
+            <span></span>
+            {{ else }}
+            <span class="neg">-</span>
+            {{ end }}
+          </td>
+          <td class="td-cen">
+            {{ if .Video }}
+            <span></span>
+            {{ else }}
+            <span class="neg">-</span>
+            {{ end }}
+          </td>
+          <td class="ul-here">
+            <ul>
+              {{ range .Ices }}
+              <li>{{ . }}</li>
+              {{ end }}
+            </ul>
+          </td>
+        </tr>
+        {{ end }}
+      </tbody>
+    </table>
+  </td>
+</tr>
+{{ end }}

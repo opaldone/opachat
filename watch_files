@@ -4,6 +4,7 @@ TTL="opachat"
 
 C_FOLDERS=(
     "$src/static/images;$bin/static/images"
+    "$src/static/external;$bin/static/external"
 )
 
 W_FILES=(
@@ -12,8 +13,15 @@ W_FILES=(
 # html
     "$src/templates/lays/layout.html;$bin/templates/lays/layout.html"
     "$src/templates/stru/dix.html;$bin/templates/stru/dix.html"
+    "$src/templates/stru/_rooms.html;$bin/templates/stru/_rooms.html"
+    "$src/templates/stru/_users.html;$bin/templates/stru/_users.html"
+    "$src/templates/stru/_tracks.html;$bin/templates/stru/_tracks.html"
 # css
     "$src/static/css/inc/reset.css;$bin/static/css/inc/reset.css"
+    "$src/static/css/inc/inc_fonts.css;$bin/static/css/inc/inc_fonts.css"
     "$src/static/css/inc/style.css;$bin/static/css/inc/style.css"
     "$src/static/css/elems/deb.css;$bin/static/css/elems/deb.css"
+# js
+    "$src/static/js/inc/funcs.js;$bin/static/js/inc/funcs.js"
+    "$src/static/js/elems/deb.js;$bin/static/js/elems/deb.js"
 )

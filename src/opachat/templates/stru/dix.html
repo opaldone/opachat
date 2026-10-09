@@ -1,112 +1,18 @@
 {{ define "title" }}Debug opachat{{ end }}
 {{ define "styles" }}
-  <link rel="stylesheet" type="text/css" href="/static/css/elems/deb.css" />
+<link rel="stylesheet" type="text/css" href="/static/css/elems/deb.css" />
 {{ end }}
 {{ define "content" }}
-  <div id="deb-cont">
-    <table class="deb-tbl">
-      <thead>
-        <tr>
-          <th style="width:33.33%">RoomId</th>
-          <th style="width:33.33%">TalkersLen</th>
-          <th style="width:33.33%">TrackLocalsLen</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{ range .Rooms }}
-          <tr>
-            <td>{{ .RoomID }}</td>
-            <td>{{ .TalkersLen }}</td>
-            <td>{{ .TrackLocalsLen }}</td>
-          </tr>
-          <tr>
-            <td class="w-tbl" colspan="4">
-              <table class="deb-tbl">
-                <thead>
-                  <tr>
-                    <th style="width:20%">Nik</th>
-                    <th style="width:20%">Uquser</th>
-                    <th style="width:20%">StrID</th>
-                    <th style="width:2%">Invisible</th>
-                    <th style="width:2%">Virt</th>
-                    <th style="width:2%">Ser rec</th>
-                    <th style="width:2%">Cli rec</th>
-                    <th style="width:2%">Screen</th>
-                    <th style="width:2%">Sound</th>
-                    <th style="width:2%">Video</th>
-                    <th style="width:26%">Ices</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {{ range .Talkers }}
-                    <tr>
-                      <td>{{ .Nik }}</td>
-                      <td>{{ .Uquser }}</td>
-                      <td>{{ .StrID }}</td>
-                      <td class="td-cen">
-                        {{ if .Invis }}
-                          <span></span>
-                        {{ else }}
-                          <span class="neg">-</span>
-                        {{ end }}
-                      </td>
-                      <td class="td-cen">
-                        {{ if .Virt }}
-                          <span></span>
-                        {{ else }}
-                          <span class="neg">-</span>
-                        {{ end }}
-                      </td>
-                      <td class="td-cen">
-                        {{ if .Recording }}
-                          <span></span>
-                        {{ else }}
-                          <span class="neg">-</span>
-                        {{ end }}
-                      </td>
-                      <td class="td-cen">
-                        {{ if .Crecording }}
-                          <span></span>
-                        {{ else }}
-                          <span class="neg">-</span>
-                        {{ end }}
-                      </td>
-                      <td class="td-cen">
-                        {{ if .Screen }}
-                          <span></span>
-                        {{ else }}
-                          <span class="neg">-</span>
-                        {{ end }}
-                      </td>
-                      <td class="td-cen">
-                        {{ if .Sound }}
-                          <span></span>
-                        {{ else }}
-                          <span class="neg">-</span>
-                        {{ end }}
-                      </td>
-                      <td class="td-cen">
-                        {{ if .Video }}
-                          <span></span>
-                        {{ else }}
-                          <span class="neg">-</span>
-                        {{ end }}
-                      </td>
-                      <td>
-                        <ul>
-                          {{ range .Ices }}
-                            <li>{{ . }}</li>
-                          {{ end }}
-                        </ul>
-                      </td>
-                    </tr>
-                  {{ end }}
-                </tbody>
-              </table>
-            </td>
-          </tr>
-        {{ end }}
-      </tbody>
-    </table>
-  </div>
+{{ $ler := (len .Rooms) }}
+<div id="deb-cont">
+  {{ if eq $ler 0 }}
+    <div id="ref-ttl" class="no-sessions" title="Refresh">No meetings<span>&#x27F3;</span></div>
+  {{ else }}
+    {{ template "_rooms" . }}
+  {{ end }}
+</div>
+{{ end }}
+{{ define "scripts" }}
+<script src="/static/js/inc/funcs.js"></script>
+<script src="/static/js/elems/deb.js"></script>
 {{ end }}

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
 	"opachat/serv"
 	"opachat/tools"
 
@@ -32,7 +33,7 @@ func Di(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	deb := serv.GetShowRooms()
 
-	GenerateHTMLEmp(w, r, deb, "stru/dix")
+	GenerateHTMLEmp(w, r, deb, "stru/dix", "stru/_rooms", "stru/_users", "stru/_tracks")
 }
 
 func Lir(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {

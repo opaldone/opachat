@@ -1,0 +1,25 @@
+{{ define "_tracks" }}
+<tr>
+  <td class="w-tbl" colspan="3">
+    <table class="deb-tbl">
+      <thead>
+        <tr>
+          <th colspan="3" class="mega-ttl">Tracks</th>
+        </tr>
+        <th style="width:33.33%">ID</th>
+        <th style="width:33.33%">StrID</th>
+        <th style="width:33.33%">Kind</th>
+      </thead>
+      <tbody>
+        {{ range .Tracks }}
+        <tr>
+          <td class="hita">{{ .ID }}</td>
+          <td class="hita">{{ .StrID }}</td>
+          <td>{{ .Kind }}</td>
+        </tr>
+        {{ end }}
+      </tbody>
+    </table>
+  </td>
+</tr>
+{{ end }}
