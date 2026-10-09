@@ -2,7 +2,6 @@ package serv
 
 import (
 	"encoding/json"
-	"fmt"
 	"sort"
 	"sync"
 	"time"
@@ -261,7 +260,7 @@ func (r *Room) getConnectedList(me string, onlyInvis bool) (res string) {
 		}
 
 		if len(talker.strID) == 0 {
-			fmt.Println("talker.strID empty uquser:", talker.wsc.uquser, " strID:", talker.strID)
+			continue
 		}
 
 		lis[talker.strID] = WConnected{
