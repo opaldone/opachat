@@ -2,6 +2,7 @@ package serv
 
 import (
 	"encoding/json"
+	"fmt"
 	"sort"
 	"sync"
 	"time"
@@ -33,11 +34,18 @@ type TalkerDebType struct {
 	Ices       []string `json:"ices"`
 }
 
+type TrackDebType struct {
+	ID    string `json:"id"`
+	StrID string `json:"strid"`
+	Kind  string `json:"kind"`
+}
+
 type RoomDebType struct {
 	RoomID         string          `json:"room_id"`
 	TalkersLen     int             `json:"talkers_len"`
 	TrackLocalsLen int             `json:"trackLocals_len"`
 	Talkers        []TalkerDebType `json:"talkers"`
+	Tracks         []TrackDebType  `json:"tracks"`
 }
 
 type RoomsDebugType struct {
@@ -252,6 +260,10 @@ func (r *Room) getConnectedList(me string, onlyInvis bool) (res string) {
 			continue
 		}
 
+		if len(talker.strID) == 0 {
+			fmt.Println("talker.strID empty uquser:", talker.wsc.uquser, " strID:", talker.strID)
+		}
+
 		lis[talker.strID] = WConnected{
 			StrID:      talker.strID,
 			Uquser:     talker.wsc.uquser,
@@ -457,6 +469,21 @@ func (r *Room) getInfo() (ret RoomDebType) {
 
 	sort.Slice(ret.Talkers, func(i, j int) bool {
 		return ret.Talkers[i].Nik < ret.Talkers[j].Nik
+	})
+
+	r.lockRoom.RLock()
+	for _, tra := range r.trackLocals {
+		some := TrackDebType{
+			ID:    tra.ID(),
+			StrID: tra.StreamID(),
+			Kind:  tra.Kind().String(),
+		}
+		ret.Tracks = append(ret.Tracks, some)
+	}
+	r.lockRoom.RUnlock()
+
+	sort.Slice(ret.Tracks, func(i, j int) bool {
+		return ret.Tracks[i].StrID < ret.Tracks[j].StrID
 	})
 
 	return
